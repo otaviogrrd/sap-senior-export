@@ -4,10 +4,10 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
 
 START-OF-SELECTION.
 

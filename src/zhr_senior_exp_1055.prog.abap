@@ -33,10 +33,10 @@ SELECTION-SCREEN END OF BLOCK blc1.
 AT SELECTION-SCREEN OUTPUT.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -46,42 +46,6 @@ START-OF-SELECTION.
 
   PERFORM f_normalizar_caminhos.
   PERFORM f_exportar_dados.
-
-FORM f_selecionar_arquivo.
-
-  DATA lv_folder TYPE string.
-
-  CALL METHOD cl_gui_frontend_services=>directory_browse
-    CHANGING
-      selected_folder      = lv_folder
-    EXCEPTIONS
-      cntl_error           = 1
-      error_no_gui         = 2
-      not_supported_by_gui = 3
-      OTHERS               = 4.
-
-  IF sy-subrc = 0 AND lv_folder IS NOT INITIAL.
-    p_locl = lv_folder.
-  ENDIF.
-
-ENDFORM.
-
-FORM zf_search_help_directory.
-
-  DATA lv_serverfile TYPE string.
-
-  CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
-    IMPORTING
-      serverfile       = lv_serverfile
-    EXCEPTIONS
-      canceled_by_user = 1
-      OTHERS           = 2.
-
-  IF NOT lv_serverfile IS INITIAL.
-    p_serv = lv_serverfile.
-  ENDIF.
-
-ENDFORM.
 
 FORM f_normalizar_caminhos.
 

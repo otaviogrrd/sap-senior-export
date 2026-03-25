@@ -1,5 +1,42 @@
 REPORT zhr_export_senior.
 
+
+FORM f_selecionar_arquivo CHANGING p_locl.
+
+  DATA lv_folder TYPE string.
+
+  CALL METHOD cl_gui_frontend_services=>directory_browse
+    CHANGING
+      selected_folder      = lv_folder
+    EXCEPTIONS
+      cntl_error           = 1
+      error_no_gui         = 2
+      not_supported_by_gui = 3
+      OTHERS               = 4.
+
+  IF sy-subrc = 0 AND lv_folder IS NOT INITIAL.
+    p_locl = lv_folder.
+  ENDIF.
+
+ENDFORM.
+
+FORM zf_search_help_directory CHANGING p_serv.
+
+  DATA lv_serverfile TYPE string.
+
+  CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
+    IMPORTING
+      serverfile       = lv_serverfile
+    EXCEPTIONS
+      canceled_by_user = 1
+      OTHERS           = 2.
+
+  IF NOT lv_serverfile IS INITIAL.
+    p_serv = lv_serverfile.
+  ENDIF.
+
+ENDFORM.
+
 ************************************************************************
 * Conversão TIPCOL (LTipCol)
 ************************************************************************

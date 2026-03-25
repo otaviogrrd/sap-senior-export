@@ -4,7 +4,7 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
 
 DATA: gv_filename TYPE string,
       gv_header   TYPE string,
@@ -13,7 +13,7 @@ DATA: gv_filename TYPE string,
       gv_count    TYPE i.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -32,7 +32,7 @@ FORM build_filename.
   lv_time = sy-uzeit.
   gv_filename = p_locl.
   IF gv_filename IS INITIAL.
-    PERFORM f_selecionar_arquivo.
+    PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
     gv_filename = p_locl.
   ENDIF.
   lv_len = strlen( gv_filename ) - 1.
