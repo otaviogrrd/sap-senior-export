@@ -1,8 +1,8 @@
 REPORT zhr_senior_exp_1015.
 
-PARAMETERS: p_file TYPE string LOWER CASE.
+PARAMETERS: p_dir TYPE string LOWER CASE.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_dir.
   PERFORM f_selecionar_arquivo.
 
 START-OF-SELECTION.
@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;ESTCAR;CODCAR;CODMOT'.
 
 *---------------------------------------------------------------------*
-* Seleção histórico (PA0001)
+* Sele??o hist?rico (PA0001)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -48,7 +48,7 @@ FORM f_exportar_dados.
    AND p0~endda GE  p1~begda.
 
 *---------------------------------------------------------------------*
-* Ordenar histórico
+* Ordenar hist?rico
 *---------------------------------------------------------------------*
 
   SORT gt_hist BY pernr begda.
@@ -71,7 +71,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* Conversões
+* Convers?es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -107,26 +107,19 @@ ENDFORM.
 
 FORM f_selecionar_arquivo.
 
-  DATA:
-    lv_filename TYPE string,
-    lv_path     TYPE string,
-    lv_fullpath TYPE string.
+  DATA lv_folder TYPE string.
 
-  CALL METHOD cl_gui_frontend_services=>file_save_dialog
-    EXPORTING
-      default_extension = 'csv'
+  CALL METHOD cl_gui_frontend_services=>directory_browse
     CHANGING
-      filename          = lv_filename
-      path              = lv_path
-      fullpath          = lv_fullpath
+      selected_folder      = lv_folder
     EXCEPTIONS
       cntl_error           = 1
       error_no_gui         = 2
       not_supported_by_gui = 3
       OTHERS               = 4.
 
-  IF sy-subrc = 0 AND lv_fullpath IS NOT INITIAL.
-    p_file = lv_fullpath.
+  IF sy-subrc = 0 AND lv_folder IS NOT INITIAL.
+    p_dir = lv_folder.
   ENDIF.
 
 ENDFORM.
@@ -135,31 +128,38 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
                      CHANGING pt_file TYPE STANDARD TABLE.
 
   DATA:
-    lv_filename TYPE string,
-    lv_path     TYPE string,
+    lv_folder   TYPE string,
     lv_fullpath TYPE string.
+  DATA:
+    lv_last TYPE c LENGTH 1,
+    lv_len  TYPE i.
 
-  lv_fullpath = p_file.
+  lv_folder = p_dir.
 
-  IF lv_fullpath IS INITIAL.
-    CALL METHOD cl_gui_frontend_services=>file_save_dialog
-      EXPORTING
-        default_extension = 'csv'
-        default_file_name = pv_filename
+  IF lv_folder IS INITIAL.
+    CALL METHOD cl_gui_frontend_services=>directory_browse
       CHANGING
-        filename          = lv_filename
-        path              = lv_path
-        fullpath          = lv_fullpath
+        selected_folder      = lv_folder
       EXCEPTIONS
         cntl_error           = 1
         error_no_gui         = 2
         not_supported_by_gui = 3
         OTHERS               = 4.
 
-    IF sy-subrc <> 0 OR lv_fullpath IS INITIAL.
-      MESSAGE 'Selecao de arquivo cancelada.' TYPE 'E'.
+    IF sy-subrc <> 0 OR lv_folder IS INITIAL.
+      MESSAGE 'Selecao de diretorio cancelada.' TYPE 'E'.
     ENDIF.
   ENDIF.
+
+  lv_len = strlen( lv_folder ) - 1.
+  IF lv_len >= 0.
+    lv_last = lv_folder+lv_len(1).
+    IF lv_last <> '\' AND lv_last <> '/'.
+      CONCATENATE lv_folder '\' INTO lv_folder.
+    ENDIF.
+  ENDIF.
+
+  CONCATENATE lv_folder pv_filename INTO lv_fullpath.
 
   CALL FUNCTION 'GUI_DOWNLOAD'
     EXPORTING
@@ -174,6 +174,6 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
     MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
   ENDIF.
 
-  p_file = lv_fullpath.
+  p_dir = lv_folder.
 
 ENDFORM.

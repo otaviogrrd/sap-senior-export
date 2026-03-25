@@ -19,19 +19,19 @@ TYPES: gty_t551a TYPE STANDARD TABLE OF t551a.
 
 *-Tela de Seleção -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF BLOCK blc1 WITH FRAME TITLE text-001.
-PARAMETERS: p_serv TYPE sapb-sappfad DEFAULT '/tmp/'.
+PARAMETERS: p_dir TYPE string LOWER CASE.
 SELECTION-SCREEN END OF BLOCK blc1.
 
 *-Evento antes do processamento ---------------------------------------
 AT SELECTION-SCREEN OUTPUT.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_dir.
   PERFORM zf_search_help_directory.
 
 START-OF-SELECTION.
 
-  IF p_serv IS INITIAL.
-    MESSAGE 'Informe o caminho de destino do arquivo no servidor.' TYPE 'E'.
+  IF p_dir IS INITIAL.
+    MESSAGE 'Informe o diretorio local de destino.' TYPE 'E'.
   ENDIF.
 
   PERFORM f_normalizar_caminhos.
@@ -42,16 +42,18 @@ START-OF-SELECTION.
 *&---------------------------------------------------------------------*
 FORM zf_search_help_directory.
 
-  DATA lv_serverfile TYPE string.
-  CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
-    IMPORTING
-      serverfile       = lv_serverfile
+  DATA lv_folder TYPE string.
+  CALL METHOD cl_gui_frontend_services=>directory_browse
+    CHANGING
+      selected_folder      = lv_folder
     EXCEPTIONS
-      canceled_by_user = 1
-      OTHERS           = 2.
+      cntl_error           = 1
+      error_no_gui         = 2
+      not_supported_by_gui = 3
+      OTHERS               = 4.
 
-  IF NOT lv_serverfile IS INITIAL.
-    p_serv = |{ lv_serverfile }/|.
+  IF NOT lv_folder IS INITIAL.
+    p_dir = lv_folder.
   ENDIF.
 
 ENDFORM.
@@ -61,12 +63,12 @@ ENDFORM.
 FORM f_normalizar_caminhos.
 
   DATA lv_last TYPE c LENGTH 1.
-  DATA(vl_strlen) = strlen( p_serv ) - 1.
+  DATA(vl_strlen) = strlen( p_dir ) - 1.
 
-  IF p_serv IS NOT INITIAL.
-    lv_last = p_serv+vl_strlen(1).
-    IF lv_last <> '/'.
-      CONCATENATE p_serv '/' INTO p_serv.
+  IF p_dir IS NOT INITIAL.
+    lv_last = p_dir+vl_strlen(1).
+    IF lv_last <> '/' AND lv_last <> '\'.
+      CONCATENATE p_dir '\' INTO p_dir.
     ENDIF.
   ENDIF.
 
@@ -92,11 +94,7 @@ FORM f_exportar_dados.
 
   DATA: lv_erro TYPE flag.
 
-  lv_filename = p_serv && sy-datum && '_SENIOR_1053.csv'.
-  OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
-  IF sy-subrc <> 0.
-    MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
-  ENDIF.
+  lv_filename = p_dir && sy-datum && '_SENIOR_1053.csv'.
 
   SELECT schkz,zmodn INTO TABLE @DATA(lt_t508a)
     FROM t508a
@@ -154,18 +152,26 @@ FORM f_exportar_dados.
   ENDIF.
   INSERT lv_header INTO lt_conv INDEX 1.
 
-  LOOP AT lt_conv INTO DATA(ls_conv).
-    TRANSFER ls_conv TO lv_filename.
-    IF sy-subrc NE 0.
-      lv_erro = abap_true. EXIT.
-    ENDIF.
-  ENDLOOP.
-  CLOSE DATASET lv_filename.
+  PERFORM f_salvar_arquivo USING lv_filename CHANGING lt_conv.
 
-  IF lv_erro IS NOT INITIAL.
-    MESSAGE 'Erro ao gerar arquivo' TYPE 'E'.
-  ELSE.
-    WRITE: / 'Arquivo gerado com sucesso:', lv_filename.
+  WRITE: / 'Arquivo gerado com sucesso:', lv_filename.
+
+ENDFORM.
+
+FORM f_salvar_arquivo USING pv_filename TYPE string
+                      CHANGING pt_file TYPE truxs_t_text_data.
+
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+      filename = pv_filename
+      filetype = 'ASC'
+    TABLES
+      data_tab = pt_file
+    EXCEPTIONS
+      OTHERS   = 1.
+
+  IF sy-subrc <> 0.
+    MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
   ENDIF.
 
 ENDFORM.

@@ -93,30 +93,30 @@ FORM f_upload_one USING pv_file TYPE string.
 
   CALL FUNCTION 'GUI_UPLOAD'
     EXPORTING
-      filename   = lv_file_in
-      filetype   = 'ASC'
+      filename                = lv_file_in
+      filetype                = 'ASC'
     TABLES
-      data_tab   = lt_source
+      data_tab                = lt_source
     EXCEPTIONS
-      file_open_error        = 1
-      file_read_error        = 2
-      no_batch               = 3
+      file_open_error         = 1
+      file_read_error         = 2
+      no_batch                = 3
       gui_refuse_filetransfer = 4
-      invalid_type           = 5
-      no_authority           = 6
-      unknown_error          = 7
-      bad_data_format        = 8
-      header_not_allowed     = 9
-      separator_not_allowed  = 10
-      header_too_long        = 11
-      unknown_dp_error       = 12
-      access_denied          = 13
-      dp_out_of_memory       = 14
-      disk_full              = 15
-      dp_timeout             = 16
-      not_supported_by_gui   = 17
-      error_no_gui           = 18
-      OTHERS                 = 19.
+      invalid_type            = 5
+      no_authority            = 6
+      unknown_error           = 7
+      bad_data_format         = 8
+      header_not_allowed      = 9
+      separator_not_allowed   = 10
+      header_too_long         = 11
+      unknown_dp_error        = 12
+      access_denied           = 13
+      dp_out_of_memory        = 14
+      disk_full               = 15
+      dp_timeout              = 16
+      not_supported_by_gui    = 17
+      error_no_gui            = 18
+      OTHERS                  = 19.
 
   IF sy-subrc <> 0.
     MESSAGE 'Erro ao ler o arquivo local.' TYPE 'E'.
@@ -132,8 +132,10 @@ FORM f_upload_one USING pv_file TYPE string.
 
   TRANSLATE lv_program TO UPPER CASE.
 
-  IF lv_program NP 'ZHR_SENIOR_EXP_*'.
-    MESSAGE 'O programa de destino deve ser ZHR_SENIOR_EXP_*.' TYPE 'E'.
+  IF lv_program NE 'ZHR_EXPORT_SENIOR'.
+    IF lv_program NP 'ZHR_SENIOR_EXP_*'.
+      MESSAGE 'O programa de destino deve ser ZHR_SENIOR_EXP_*.' TYPE 'E'.
+    ENDIF.
   ENDIF.
 
   LOOP AT lt_source INTO lv_line.
@@ -198,18 +200,18 @@ FORM f_upload_all.
 
   CALL METHOD cl_gui_frontend_services=>directory_list_files
     EXPORTING
-      directory   = lv_dir
-      filter      = 'zhr_senior_exp_*.prog.abap'
+      directory                   = lv_dir
+      filter                      = 'zhr_senior_exp_*.prog.abap'
     CHANGING
-      file_table  = lt_files
-      count       = lv_count
+      file_table                  = lt_files
+      count                       = lv_count
     EXCEPTIONS
-      cntl_error              = 1
+      cntl_error                  = 1
       directory_list_files_failed = 2
-      wrong_parameter         = 3
-      error_no_gui            = 4
-      not_supported_by_gui    = 5
-      OTHERS                  = 6.
+      wrong_parameter             = 3
+      error_no_gui                = 4
+      not_supported_by_gui        = 5
+      OTHERS                      = 6.
 
   IF sy-subrc <> 0.
     MESSAGE 'Erro ao listar os arquivos do diretorio.' TYPE 'E'.
@@ -231,21 +233,22 @@ FORM f_upload_all.
     CONCATENATE lv_file ls_file-filename INTO lv_file.
     PERFORM f_upload_one USING lv_file.
   ENDLOOP.
-  
+
+  CLEAR lt_files[].
   CALL METHOD cl_gui_frontend_services=>directory_list_files
     EXPORTING
-      directory   = lv_dir
-      filter      = 'ZHR_EXPORT_SENIOR.prog.abap'
+      directory                   = lv_dir
+      filter                      = 'ZHR_EXPORT_SENIOR.*prog.abap'
     CHANGING
-      file_table  = lt_files
-      count       = lv_count
+      file_table                  = lt_files
+      count                       = lv_count
     EXCEPTIONS
-      cntl_error              = 1
+      cntl_error                  = 1
       directory_list_files_failed = 2
-      wrong_parameter         = 3
-      error_no_gui            = 4
-      not_supported_by_gui    = 5
-      OTHERS                  = 6.
+      wrong_parameter             = 3
+      error_no_gui                = 4
+      not_supported_by_gui        = 5
+      OTHERS                      = 6.
 
   IF sy-subrc <> 0.
     MESSAGE 'Erro ao listar os arquivos do diretorio.' TYPE 'E'.
