@@ -1,52 +1,29 @@
 REPORT zhr_senior_exp_1002.
 
-DATA: gv_filename TYPE string,
-      gv_header   TYPE string,
-      gv_line     TYPE string,
-      gt_file     TYPE STANDARD TABLE OF string,
-      gv_count    TYPE i.
 PARAMETERS: p_dir TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_dir.
   PERFORM f_selecionar_arquivo.
 
-
 START-OF-SELECTION.
 
-  PERFORM build_filename.
-  PERFORM build_header.
-  PERFORM get_data.
-  WRITE: / 'Arquivo gerado:', gv_filename.
-  WRITE: / 'Registros exportados:', gv_count.
+  PERFORM f_export.
 
-FORM build_filename.
-  DATA lv_date TYPE char8.
-  DATA lv_time TYPE char6.
-  lv_date = sy-datum.
-  lv_time = sy-uzeit.
-  IF p_file IS INITIAL.
-    CONCATENATE 'SENIOR_1002_' lv_date '_' lv_time '.csv' INTO gv_filename.
-  ELSE.
-    gv_filename = p_file.
-  ENDIF.
-ENDFORM.
+FORM f_export.
 
-FORM build_header.
-  gv_header = 'NUMEMP;CODCCU;DESCCCU;NIVCCU;DTINICIO;DTFIM'.
-ENDFORM.
+  DATA: gv_filename TYPE string,
+        gv_header   TYPE string,
+        gt_file     TYPE STANDARD TABLE OF string.
 
-FORM get_data.
+  gv_filename = sy-datum && '_1002.csv'.
+  gv_header = 'NUMEMP;CODCCU;NOMCCU;DATCRI;DATEXT'.
 
-    APPEND gv_header TO gt_file.
-
-  " TODO: implementar SELECT e mapeamento do layout
-  " Exemplo:
-  " CLEAR gv_line.
-  " CONCATENATE 'VAL1' 'VAL2' INTO gv_line SEPARATED BY ';'.
-  " APPEND gv_line TO gt_file.
-  " ADD 1 TO gv_count.
+  APPEND gv_header TO gt_file.
 
   PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
+
+  WRITE: / 'Layout 1002 gerado:', gv_filename.
+
 ENDFORM.
 
 FORM f_selecionar_arquivo.

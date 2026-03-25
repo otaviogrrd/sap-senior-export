@@ -12,14 +12,17 @@ START-OF-SELECTION.
 FORM f_export.
 
   DATA: gv_filename TYPE string,
-    gt_file     TYPE STANDARD TABLE OF string.
+        gv_header   TYPE string,
+        gt_file     TYPE STANDARD TABLE OF string.
 
   gv_filename = sy-datum && '_1042.csv'.
+  gv_header = 'NUMEMP;TIPCOL;NUMCAD;CODDEP;SEQPAG;ORIPEN;TIPPEN;DATRF1;DATRF2;CODCAL;BASPEN;VALPEN;DATRF3'.
 
-  
-  WRITE: / 'Layout 1042 gerado:', gv_filename.
+  APPEND gv_header TO gt_file.
 
   PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
+
+  WRITE: / 'Layout 1042 gerado:', gv_filename.
 
 ENDFORM.
 

@@ -22,24 +22,32 @@ START-OF-SELECTION.
 FORM build_filename.
   DATA lv_date TYPE char8.
   DATA lv_time TYPE char6.
+  DATA lv_len  TYPE i.
+  DATA lv_last TYPE c LENGTH 1.
   lv_date = sy-datum.
   lv_time = sy-uzeit.
-  IF p_file IS INITIAL.
-    CONCATENATE 'SENIOR_1005_' lv_date '_' lv_time '.csv' INTO gv_filename.
-  ELSE.
-    gv_filename = p_file.
+  gv_filename = p_dir.
+  IF gv_filename IS INITIAL.
+    PERFORM f_selecionar_arquivo.
+    gv_filename = p_dir.
   ENDIF.
+  lv_len = strlen( gv_filename ) - 1.
+  IF lv_len >= 0.
+    lv_last = gv_filename+lv_len(1).
+    IF lv_last <> '\' AND lv_last <> '/'.
+      CONCATENATE gv_filename '\' INTO gv_filename.
+    ENDIF.
+  ENDIF.
+  CONCATENATE gv_filename 'SENIOR_1005_' lv_date '_' lv_time '.csv' INTO gv_filename.
 ENDFORM.
 
 FORM build_header.
-  gv_header = 'NUMEMP;CODTAX;DESCTAX;VALOR;DTINICIO;DTFIM'.
+  gv_header = 'CODNOT;DESNOT;MOSFIC;BASLEG;TPESOC;SALVAR;APRGRA'.
 ENDFORM.
 
 FORM get_data.
-  
-  IF p_head = 'X'.
-    APPEND gv_header TO gt_file.
-  ENDIF.
+
+  APPEND gv_header TO gt_file.
 
   " TODO: implementar SELECT e mapeamento do layout
   " Exemplo:

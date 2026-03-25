@@ -1,8 +1,7 @@
 REPORT ZHR_SENIOR_EXP_1050.
 
 PARAMETERS: p_dir  TYPE string LOWER CASE,
-            p_file TYPE string LOWER CASE,
-            p_head AS CHECKBOX DEFAULT 'X'.
+            p_file TYPE string LOWER CASE.
 
 DATA: gv_filename TYPE string,
       gv_header   TYPE string,
@@ -42,15 +41,13 @@ FORM build_filename.
 ENDFORM.
 
 FORM build_header.
-  gv_header = 'NUMEMP;TIPCOL;NUMCAD;HORAEXTRA;DATAGEND;STATUS'.
+  gv_header = 'CODHOR;DESHOR;TURHOR;TIPHOR;FLEESO;TIPINT'.
 ENDFORM.
 
 FORM get_data.
   DATA lt_file TYPE STANDARD TABLE OF string.
 
-  IF p_head = 'X'.
-    APPEND gv_header TO lt_file.
-  ENDIF.
+  APPEND gv_header TO lt_file.
 
   " TODO: implementar SELECT e mapeamento do layout
   " Exemplo:
