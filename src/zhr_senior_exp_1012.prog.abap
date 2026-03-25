@@ -4,10 +4,12 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -30,10 +32,14 @@ FORM f_exportar_dados.
 
   gv_filename = sy-datum && '_SENIOR_1012.csv'.
 
-  gv_header = 'NUMEMP;TIPCOL;NUMCAD;NOMFUN;APEFUN;DATADM;TIPCON;TIPSEX;ESTCIV;GRAINS;DATNAS;'
-  && 'CODNAC;ANOCHE;VISEST;REGEST;DVLEST;DVLCTP;NUMCTP;SERCTP;ESTCTP;DEXCTP;NUMCPF;NUMPIS;DCDPIS;'
-  && 'PAGSIN;MODPAG;CODBAN;CODAGE;CONBAN;DIGBAN;TIPAPO;DATAPO;OUTCON;OUTTET;DEFFIS;RACCOR;CODDEF;'
-  && 'CATSEF;MOVSEF;BENREA;DOCEST;TPCTBA;APOIDA;DATCHE;RECADI;REC13S;LISRAI;EMICAR;CONRHO;PERPAG;'
+  gv_header = 'NUMEMP;TIPCOL;NUMCAD;NOMFUN;APEFUN;DATADM;TIPCON;'
+  && 'TIPSEX;ESTCIV;GRAINS;DATNAS;'
+  && 'CODNAC;ANOCHE;VISEST;REGEST;DVLEST;DVLCTP;NUMCTP;'
+  && 'SERCTP;ESTCTP;DEXCTP;NUMCPF;NUMPIS;DCDPIS;'
+  && 'PAGSIN;MODPAG;CODBAN;CODAGE;CONBAN;DIGBAN;TIPAPO;'
+  && 'DATAPO;OUTCON;OUTTET;DEFFIS;RACCOR;CODDEF;'
+  && 'CATSEF;MOVSEF;BENREA;DOCEST;TPCTBA;APOIDA;DATCHE;'
+  && 'RECADI;REC13S;LISRAI;EMICAR;CONRHO;PERPAG;'
   && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF;'.
 
 *---------------------------------------------------------------------*
@@ -181,7 +187,9 @@ WHERE p1~begda <= @sy-datum
 
     IF sy-subrc = 0.
       IF <fs_0041>-dar01 = '01'.
-        PERFORM f_conv_date IN PROGRAM zhr_export_senior USING <fs_0041>-dat01 CHANGING lv_datadm.
+        PERFORM f_conv_date IN PROGRAM zhr_export_senior
+          USING <fs_0041>-dat01
+          CHANGING lv_datadm.
       ENDIF.
     ENDIF.
 
@@ -213,7 +221,9 @@ WHERE p1~begda <= @sy-datum
       lv_serctp = <fs_carteira>-ctps_serie.
       lv_estctp = <fs_carteira>-es_emis.
 
-      PERFORM f_conv_date IN PROGRAM zhr_export_senior USING <fs_carteira>-dt_emis CHANGING lv_dexctp.
+      PERFORM f_conv_date IN PROGRAM zhr_export_senior
+        USING <fs_carteira>-dt_emis
+        CHANGING lv_dexctp.
     ENDIF.
 
 *---------------------------------------------------------------------*
@@ -226,7 +236,9 @@ WHERE p1~begda <= @sy-datum
     WITH KEY pernr = <fs_emp>-pernr.
     IF sy-subrc = 0.
       lv_numpis = <fs_pis>-pis_nr.
-      PERFORM f_conv_date IN PROGRAM zhr_export_senior USING <fs_pis>-dt_emis CHANGING lv_dcdpis.
+      PERFORM f_conv_date IN PROGRAM zhr_export_senior
+        USING <fs_pis>-dt_emis
+        CHANGING lv_dcdpis.
     ENDIF.
 
 
@@ -242,7 +254,9 @@ WHERE p1~begda <= @sy-datum
     IF sy-subrc = 0.
       lv_anoche = <fs_estrang>-dt_arrv(4).
 
-      PERFORM f_conv_date IN PROGRAM zhr_export_senior USING <fs_estrang>-dt_arrv CHANGING lv_datche.
+      PERFORM f_conv_date IN PROGRAM zhr_export_senior
+        USING <fs_estrang>-dt_arrv
+        CHANGING lv_datche.
     ENDIF.
 *---------------------------------------------------------------------*
 * Banco / Ag?ncia / Conta
@@ -277,16 +291,32 @@ WHERE p1~begda <= @sy-datum
 * Linha
 *---------------------------------------------------------------------*
 
-    PERFORM f_conv_tipcon IN PROGRAM zhr_export_senior USING <fs_emp>-gbdat CHANGING lv_datnas.
-    PERFORM f_conv_tipcon IN PROGRAM zhr_export_senior USING <fs_emp>-empid CHANGING lv_tipcon.
-    PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior USING <fs_emp>-persg CHANGING lv_tipcol.
-    PERFORM f_conv_tipsex IN PROGRAM zhr_export_senior USING <fs_emp>-gesch CHANGING lv_sexo.
-    PERFORM f_conv_estciv IN PROGRAM zhr_export_senior USING <fs_emp>-famst CHANGING lv_estciv.
-    PERFORM f_conv_raccor IN PROGRAM zhr_export_senior USING <fs_emp>-race  CHANGING lv_raccor.
+    PERFORM f_conv_tipcon IN PROGRAM zhr_export_senior
+      USING <fs_emp>-gbdat
+      CHANGING lv_datnas.
+    PERFORM f_conv_tipcon IN PROGRAM zhr_export_senior
+      USING <fs_emp>-empid
+      CHANGING lv_tipcon.
+    PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
+      USING <fs_emp>-persg
+      CHANGING lv_tipcol.
+    PERFORM f_conv_tipsex IN PROGRAM zhr_export_senior
+      USING <fs_emp>-gesch
+      CHANGING lv_sexo.
+    PERFORM f_conv_estciv IN PROGRAM zhr_export_senior
+      USING <fs_emp>-famst
+      CHANGING lv_estciv.
+    PERFORM f_conv_raccor IN PROGRAM zhr_export_senior
+      USING <fs_emp>-race
+      CHANGING lv_raccor.
 
     "FGts
-    PERFORM f_conv_simnao IN PROGRAM zhr_export_senior USING <fs_emp>-fgtso CHANGING lv_tipopc.
-    PERFORM f_conv_date   IN PROGRAM zhr_export_senior USING <fs_emp>-fgtsd CHANGING lv_datopc.
+    PERFORM f_conv_simnao IN PROGRAM zhr_export_senior
+      USING <fs_emp>-fgtso
+      CHANGING lv_tipopc.
+    PERFORM f_conv_date IN PROGRAM zhr_export_senior
+      USING <fs_emp>-fgtsd
+      CHANGING lv_datopc.
 
 
     DATA(lv_deffis) = ''.
@@ -411,7 +441,8 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
 
     CONCATENATE lv_server pv_filename INTO lv_fullpath.
 
-    OPEN DATASET lv_fullpath FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_fullpath FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
     ENDIF.

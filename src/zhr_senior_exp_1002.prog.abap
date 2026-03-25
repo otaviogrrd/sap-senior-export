@@ -27,10 +27,12 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -168,8 +170,10 @@ FORM f_export.
     ENDIF.
 
     REPLACE ALL OCCURRENCES OF ';' IN lv_nomccu WITH ','.
-    REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN lv_nomccu WITH space.
-    REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN lv_nomccu WITH space.
+    REPLACE ALL OCCURRENCES OF
+      cl_abap_char_utilities=>cr_lf IN lv_nomccu WITH space.
+    REPLACE ALL OCCURRENCES OF
+      cl_abap_char_utilities=>newline IN lv_nomccu WITH space.
     CONDENSE lv_nomccu.
 
     IF <fs_ccu>-datcri IS NOT INITIAL
@@ -248,7 +252,8 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
 
     CONCATENATE lv_server pv_filename INTO lv_fullpath.
 
-    OPEN DATASET lv_fullpath FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_fullpath FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
     ENDIF.

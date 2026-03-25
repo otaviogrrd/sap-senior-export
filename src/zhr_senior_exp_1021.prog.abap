@@ -4,10 +4,12 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -30,7 +32,8 @@ FORM f_exportar_dados.
 
   gv_filename = sy-datum && '_SENIOR_1021.csv'.
 
-  gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;EMPATU;CADATU;CODFIL;TIPADM;FICREG;ADMESO'.
+  gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;EMPATU;CADATU;CODFIL;'
+  && 'TIPADM;FICREG;ADMESO'.
 
 *---------------------------------------------------------------------*
 * Sele??o (PA0001 + PA0000)
@@ -77,7 +80,8 @@ FORM f_exportar_dados.
 
   SORT gt_hist BY pernr begda werks btrtl.
 
-  DELETE ADJACENT DUPLICATES FROM gt_hist COMPARING pernr begda werks btrtl.
+  DELETE ADJACENT DUPLICATES FROM gt_hist
+    COMPARING pernr begda werks btrtl.
 
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
     DATA: lv_last_werks TYPE werks_d,
@@ -195,7 +199,8 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
 
     CONCATENATE lv_server pv_filename INTO lv_fullpath.
 
-    OPEN DATASET lv_fullpath FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_fullpath FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
     ENDIF.

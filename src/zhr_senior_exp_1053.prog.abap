@@ -27,10 +27,12 @@ SELECTION-SCREEN END OF BLOCK blc1.
 AT SELECTION-SCREEN OUTPUT.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -147,7 +149,8 @@ FORM f_exportar_dados.
   DO.
     lv_index1 = lv_index2.
     lv_index2 = lv_index1 + 32000.
-    APPEND LINES OF lr_zmodn FROM lv_index1 TO lv_index2 TO lr_zmodn_aux.
+    APPEND LINES OF lr_zmodn FROM lv_index1 TO lv_index2
+      TO lr_zmodn_aux.
     IF lr_zmodn_aux[] IS INITIAL. EXIT. ENDIF.
     SELECT * APPENDING TABLE @DATA(lt_t551a)
       FROM t551a
@@ -185,7 +188,8 @@ FORM f_exportar_dados.
   INSERT lv_header INTO lt_conv INDEX 1.
 
   IF p_serv IS NOT INITIAL.
-    OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_filename FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
     ENDIF.
@@ -230,9 +234,11 @@ FORM zf_process_registration USING us_t508a TYPE any
   DATA: lv_zmodn TYPE dzmodn,
         lv_cont  TYPE numc1.
 
-  ASSIGN COMPONENT 'ZMODN' OF STRUCTURE us_t508a TO FIELD-SYMBOL(<lf_value>).
+  ASSIGN COMPONENT 'ZMODN' OF STRUCTURE us_t508a
+    TO FIELD-SYMBOL(<lf_value>).
   lv_zmodn = <lf_value>.
-  LOOP AT ut_t551a ASSIGNING FIELD-SYMBOL(<lf_t551a>) WHERE zmodn EQ lv_zmodn.
+  LOOP AT ut_t551a ASSIGNING FIELD-SYMBOL(<lf_t551a>)
+    WHERE zmodn EQ lv_zmodn.
 
     DO 7 TIMES.
       ADD 1 TO lv_cont.

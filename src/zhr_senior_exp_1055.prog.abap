@@ -33,10 +33,12 @@ SELECTION-SCREEN END OF BLOCK blc1.
 AT SELECTION-SCREEN OUTPUT.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -92,11 +94,14 @@ FORM f_exportar_dados.
     lv_filename = p_locl && sy-datum && '_SENIOR_1055.csv'.
   ENDIF.
   
-  SELECT pa0001~pernr,pa0001~bukrs,pa0001~persg,pa0001~persk,pa0001~plans,
+  SELECT pa0001~pernr, pa0001~bukrs, pa0001~persg,
+         pa0001~persk, pa0001~plans,
          pa0008~lga01,pa0008~bet01,
          pa0016~ctedt,
          pa0168~bplan,
-         pa0398~begda,pa0398~internshp_type,pa0398~educ_level,pa0398~educ_inst_cod,pa0398~int_agent_cod INTO TABLE @DATA(lt_dados)
+         pa0398~begda, pa0398~internshp_type, pa0398~educ_level,
+         pa0398~educ_inst_cod, pa0398~int_agent_cod
+    INTO TABLE @DATA(lt_dados)
    FROM pa0001
    INNER JOIN pa0008 ON pa0008~pernr EQ pa0001~pernr
    INNER JOIN pa0016 ON pa0016~pernr EQ pa0001~pernr
@@ -137,7 +142,8 @@ FORM f_exportar_dados.
   INSERT lv_header INTO lt_conv INDEX 1.
 
   IF p_serv IS NOT INITIAL.
-    OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_filename FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
     ENDIF.
@@ -186,13 +192,16 @@ FORM zf_process_registration USING us_dados TYPE any.
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
   " C?digo da Empresa
-  ASSIGN COMPONENT 'BUKRS' OF STRUCTURE us_dados TO FIELD-SYMBOL(<lf_value>).
+  ASSIGN COMPONENT 'BUKRS' OF STRUCTURE us_dados
+    TO FIELD-SYMBOL(<lf_value>).
   <lf_file>-numemp = <lf_value>.
 
   " Tipo Colaborador
   ASSIGN COMPONENT 'PERSG' OF STRUCTURE us_dados TO <lf_value>.
   lv_persg = <lf_value>.
-  PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior USING lv_persg CHANGING lv_tipcol.
+  PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
+    USING lv_persg
+    CHANGING lv_tipcol.
   <lf_file>-tipcol = lv_tipcol.
 
   " Cadastro do Colaborador
@@ -202,7 +211,9 @@ FORM zf_process_registration USING us_dados TYPE any.
   " Data de Refer?ncia
   ASSIGN COMPONENT 'BEGDA' OF STRUCTURE us_dados TO <lf_value>.
   lv_dats = <lf_value>.
-  PERFORM f_conv_date   IN PROGRAM zhr_export_senior USING lv_dats CHANGING lv_datopc.
+  PERFORM f_conv_date IN PROGRAM zhr_export_senior
+    USING lv_dats
+    CHANGING lv_datopc.
   <lf_file>-datref = lv_datopc.
 
   " Natureza do Est?gio
@@ -227,7 +238,9 @@ FORM zf_process_registration USING us_dados TYPE any.
   " Data prevista para o t?rmino do est?gio
   ASSIGN COMPONENT 'CTEDT' OF STRUCTURE us_dados TO <lf_value>.
   lv_dats = <lf_value>.
-  PERFORM f_conv_date IN PROGRAM zhr_export_senior USING lv_dats CHANGING lv_datopc.
+  PERFORM f_conv_date IN PROGRAM zhr_export_senior
+    USING lv_dats
+    CHANGING lv_datopc.
   <lf_file>-preter = lv_datopc.
 
   " Institui??o de Ensino

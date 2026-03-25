@@ -4,10 +4,12 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -30,11 +32,16 @@ FORM f_exportar_dados.
 
   gv_filename = sy-datum && '_SENIOR_1013.csv'.
 
-  gv_header = 'NUMEMP;TIPCOL;NUMCAD;FICREG;CODPAI;CODEST;CODCID;CODBAI;ENDCEP;TIPLGR;'
-           && 'ENDRUA;ENDNUM;ENDCPL;PAINAS;ESTNAS;CCINAS;NUMCID;EMICID;CIDEMI;ESTCID;DEXCID;'
-           && 'ZONELE;SECELE;NUMELE;NUMCNH;CATCNH;VENCNH;ORGCNH;ESTCNH;NUMRES;CATRES;'
-           && 'DESPRF;DATEXP;DATVEN;REGCON;DURCON;PROCON;EMAPAR;EMACOM;NOMCOM;'
-           && 'DDITEL;DDDTEL;NUMTEL;NMDDI2;NMDDD2;NMTEL2;NOMSOC;PRICNH;DATCNH;CARSUS'.
+  gv_header = 'NUMEMP;TIPCOL;NUMCAD;FICREG;CODPAI;CODEST;CODCID;'
+  && 'CODBAI;ENDCEP;TIPLGR;'
+           && 'ENDRUA;ENDNUM;ENDCPL;PAINAS;ESTNAS;CCINAS;NUMCID;'
+           && 'EMICID;CIDEMI;ESTCID;DEXCID;'
+           && 'ZONELE;SECELE;NUMELE;NUMCNH;CATCNH;VENCNH;ORGCNH;'
+           && 'ESTCNH;NUMRES;CATRES;'
+           && 'DESPRF;DATEXP;DATVEN;REGCON;DURCON;PROCON;EMAPAR;'
+           && 'EMACOM;NOMCOM;'
+           && 'DDITEL;DDDTEL;NUMTEL;NMDDI2;NMDDD2;NMTEL2;NOMSOC;'
+           && 'PRICNH;DATCNH;CARSUS'.
 
 *---------------------------------------------------------------------*
 * Sele??o base
@@ -258,7 +265,8 @@ FORM f_exportar_dados.
 
     CLEAR:
       lv_tipcol,
-      lv_codpai, lv_codest, lv_codcid, lv_codbai, lv_endcep, lv_tiplgr, lv_endrua, lv_endnum, lv_endcpl,
+      lv_codpai, lv_codest, lv_codcid, lv_codbai, lv_endcep,
+      lv_tiplgr, lv_endrua, lv_endnum, lv_endcpl,
       lv_painas, lv_estnas, lv_ccinas,
       lv_numcid, lv_emicid, lv_cidemi, lv_estcid, lv_dexcid,
       lv_zonele, lv_secele, lv_numele,
@@ -581,7 +589,8 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
 
     CONCATENATE lv_server pv_filename INTO lv_fullpath.
 
-    OPEN DATASET lv_fullpath FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_fullpath FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
     ENDIF.

@@ -20,10 +20,12 @@ SELECTION-SCREEN END OF BLOCK blc1.
 AT SELECTION-SCREEN OUTPUT.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -144,7 +146,8 @@ FORM f_exportar_dados.
   INSERT lv_header INTO lt_conv INDEX 1.
 
   IF p_serv IS NOT INITIAL.
-    OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_filename FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
     ENDIF.
@@ -188,7 +191,8 @@ FORM zf_process_registration USING us_dados TYPE any.
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
   " C?digo do Hor?rio
-*  ASSIGN COMPONENT ' ' OF STRUCTURE us_dados TO FIELD-SYMBOL(<lf_value>).
+*  ASSIGN COMPONENT ' ' OF STRUCTURE us_dados
+*    TO FIELD-SYMBOL(<lf_value>).
 *<lf_file>-CODHOR = <lf_value>.
 
   " Sequ?ncia da Marca??o

@@ -4,7 +4,8 @@ PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 DATA: gv_filename TYPE string,
       gv_header   TYPE string,
@@ -13,7 +14,8 @@ DATA: gv_filename TYPE string,
       gv_count    TYPE i.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
-  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior CHANGING p_serv.
+  PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior
+    CHANGING p_serv.
 
 START-OF-SELECTION.
 
@@ -32,7 +34,8 @@ FORM build_filename.
   lv_time = sy-uzeit.
   gv_filename = p_locl.
   IF gv_filename IS INITIAL.
-    PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior CHANGING p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
     gv_filename = p_locl.
   ENDIF.
   lv_len = strlen( gv_filename ) - 1.
@@ -42,7 +45,8 @@ FORM build_filename.
       CONCATENATE gv_filename '\' INTO gv_filename.
     ENDIF.
   ENDIF.
-  CONCATENATE gv_filename 'SENIOR_1005_' lv_date '_' lv_time '.csv' INTO gv_filename.
+  CONCATENATE gv_filename 'SENIOR_1005_' lv_date '_'
+              lv_time '.csv' INTO gv_filename.
 ENDFORM.
 
 FORM build_header.
@@ -53,7 +57,7 @@ FORM get_data.
 
   APPEND gv_header TO gt_file.
 
-  " TODO: implementar SELECT e mapeamento do layout
+  " TODO: implementar SELECT
   " Exemplo:
   " CLEAR gv_line.
   " CONCATENATE 'VAL1' 'VAL2' INTO gv_line SEPARATED BY ';'.
@@ -107,7 +111,8 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
 
     CONCATENATE lv_server pv_filename INTO lv_fullpath.
 
-    OPEN DATASET lv_fullpath FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    OPEN DATASET lv_fullpath FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
     IF sy-subrc <> 0.
       MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
     ENDIF.
