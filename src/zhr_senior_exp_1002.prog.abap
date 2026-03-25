@@ -13,6 +13,7 @@ DATA: gv_filename TYPE string,
       gv_count    TYPE i.
 
 START-OF-SELECTION.
+
   PERFORM build_filename.
   PERFORM build_header.
   PERFORM get_data.
@@ -103,7 +104,7 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
         OTHERS               = 4.
 
     IF sy-subrc <> 0 OR lv_fullpath IS INITIAL.
-      MESSAGE 'Selecao do arquivo cancelada.' TYPE 'E'.
+      MESSAGE 'Selecao de arquivo cancelada.' TYPE 'E'.
     ENDIF.
   ENDIF.
 

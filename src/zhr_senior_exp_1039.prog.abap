@@ -12,7 +12,7 @@ START-OF-SELECTION.
 FORM f_export.
 
   DATA: gv_filename TYPE string,
-        gt_file    TYPE STANDARD TABLE OF string.
+    gt_file     TYPE STANDARD TABLE OF string.
 
   gv_filename = sy-datum
    && '_1039.csv'.
@@ -76,7 +76,7 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
         OTHERS               = 4.
 
     IF sy-subrc <> 0 OR lv_fullpath IS INITIAL.
-      MESSAGE 'Selecao do arquivo cancelada.' TYPE 'E'.
+      MESSAGE 'Selecao de arquivo cancelada.' TYPE 'E'.
     ENDIF.
   ENDIF.
 
