@@ -609,30 +609,33 @@ FORM f_split_phone
            p_num.
 
   DATA lv_phone TYPE string.
+  DATA lv_digits TYPE string.
+  DATA lv_char   TYPE c LENGTH 1.
+  DATA lv_off    TYPE i.
   DATA lv_len   TYPE i.
 
   CLEAR: p_ddi, p_ddd, p_num.
 
   lv_phone = p_phone.
 
-  REPLACE ALL OCCURRENCES OF '(' IN lv_phone WITH ''.
-  REPLACE ALL OCCURRENCES OF ')' IN lv_phone WITH ''.
-  REPLACE ALL OCCURRENCES OF '-' IN lv_phone WITH ''.
-  REPLACE ALL OCCURRENCES OF ' ' IN lv_phone WITH ''.
-  REPLACE ALL OCCURRENCES OF '/' IN lv_phone WITH ''.
-  REPLACE ALL OCCURRENCES OF '.' IN lv_phone WITH ''.
-  CONDENSE lv_phone NO-GAPS.
+  DO strlen( lv_phone ) TIMES.
+    lv_off = sy-index - 1.
+    lv_char = lv_phone+lv_off(1).
+    IF lv_char CO '0123456789'.
+      CONCATENATE lv_digits lv_char INTO lv_digits IN CHARACTER MODE.
+    ENDIF.
+  ENDDO.
 
-  lv_len = strlen( lv_phone ).
+  lv_len = strlen( lv_digits ).
 
   IF lv_len >= 10.
-    p_ddd = lv_phone+0(2).
-    p_num = lv_phone+2.
+    p_ddd = lv_digits+0(2).
+    p_num = lv_digits+2.
   ELSEIF lv_len > 2.
-    p_ddd = lv_phone+0(2).
-    p_num = lv_phone+2.
+    p_ddd = lv_digits+0(2).
+    p_num = lv_digits+2.
   ELSE.
-    p_num = lv_phone.
+    p_num = lv_digits.
   ENDIF.
 
 ENDFORM.

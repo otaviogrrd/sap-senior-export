@@ -23,7 +23,6 @@ TYPES: BEGIN OF ty_pay,
          fpbeg  TYPE pc261-fpbeg,
          fpend  TYPE pc261-fpend,
          seqnr  TYPE pc261-seqnr,
-         relid  TYPE pc261-relid,
          rank   TYPE i,
        END OF ty_pay.
 
@@ -192,7 +191,7 @@ FORM f_export.
           lv_contract_end TYPE datum.
 
     PERFORM f_read_payroll_result
-      USING <fs_pay>-pernr <fs_pay>-seqnr <fs_pay>-relid
+      USING <fs_pay>-pernr <fs_pay>-seqnr
       CHANGING lt_rt.
 
     PERFORM f_collect_rt_values
@@ -398,7 +397,6 @@ FORM f_collect_payments
       ls_pay-fpbeg  = <fs_rgdir>-fpbeg.
       ls_pay-fpend  = <fs_rgdir>-fpend.
       ls_pay-seqnr  = <fs_rgdir>-seqnr.
-      ls_pay-relid  = <fs_rgdir>-relid.
       APPEND ls_pay TO pt_pay.
     ENDLOOP.
   ENDLOOP.
@@ -429,7 +427,6 @@ ENDFORM.
 FORM f_read_payroll_result
   USING    pv_pernr TYPE pernr_d
            pv_seqnr TYPE pc261-seqnr
-           pv_relid TYPE pc261-relid
   CHANGING pt_rt    TYPE STANDARD TABLE.
 
   DATA ls_payroll_result TYPE pay99_result.
@@ -440,7 +437,7 @@ FORM f_read_payroll_result
 
   CALL FUNCTION 'PYXX_READ_PAYROLL_RESULT'
     EXPORTING
-      clusterid                 = pv_relid
+      clusterid                 = 'RX'
       employeenumber            = pv_pernr
       sequencenumber            = pv_seqnr
       read_only_international   = 'X'
