@@ -37,6 +37,7 @@ FORM f_exportar_dados.
     p1~bukrs,
     p1~persg,
     p8~begda,
+    p8~lga01,
     p8~bet01,
     p8~preas
   INTO TABLE @DATA(gt_hist)
@@ -72,7 +73,8 @@ FORM f_exportar_dados.
     lv_tipcol TYPE c LENGTH 1,
     lv_datalt TYPE char10,
     lv_seqalt TYPE n LENGTH 2 VALUE '00',
-    lv_lastsal TYPE pa0008-bet01.
+    lv_lastsal TYPE pa0008-bet01,
+    lv_tipsal  TYPE string.
 
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
@@ -108,6 +110,17 @@ FORM f_exportar_dados.
       USING <fs_hist>-begda
       CHANGING lv_datalt.
 
+    CLEAR lv_tipsal.
+
+    IF <fs_hist>-lga01 IS NOT INITIAL.
+      SELECT SINGLE lgtxt
+        INTO lv_tipsal
+        FROM t512t
+       WHERE sprsl = sy-langu
+         AND molga = '37'
+         AND lgart = <fs_hist>-lga01.
+    ENDIF.
+
 *---------------------------------------------------------------------*
 * Percentual de reajuste (opcional)
 *---------------------------------------------------------------------*
@@ -126,7 +139,7 @@ FORM f_exportar_dados.
       lv_seqalt         && ';' && " SEQALT
       <fs_hist>-preas   && ';' && " CODMOT
       <fs_hist>-bet01   && ';' && " VALSAL
-*      <fs_hist>-lgtxt   && ';' && " TIPSAL
+      lv_tipsal         && ';' && " TIPSAL
       lv_perrea.                   " PERREA
 
     APPEND gv_line TO gt_file.
