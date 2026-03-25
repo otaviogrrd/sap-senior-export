@@ -150,7 +150,7 @@ FORM f_upload_one USING pv_file TYPE string.
     RETURN.
   ENDIF.
 
-  INSERT REPORT lv_program FROM lt_report STATE 'I'.
+  INSERT REPORT lv_program FROM lt_report.
 
   IF sy-subrc <> 0.
     MESSAGE 'Erro ao gravar o report no repositorio SAP.' TYPE 'E'.
