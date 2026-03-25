@@ -38,7 +38,7 @@ FORM zf_search_help_directory CHANGING p_serv.
 ENDFORM.
 
 ************************************************************************
-* Conversão TIPCOL (LTipCol)
+* Convers??o TIPCOL (LTipCol)
 ************************************************************************
 FORM f_conv_tipcol
   USING    p_persg
@@ -54,13 +54,13 @@ FORM f_conv_tipcol
     WHEN '4'. " Aprendiz
       p_tipcol = '1'.
 
-    WHEN '5'. " Estagiário
+    WHEN '5'. " Estagi??rio
       p_tipcol = '1'.
 
     WHEN '6'. " Prestador
       p_tipcol = '2'.
 
-    WHEN '7'. " Pró-labore
+    WHEN '7'. " Pr??-labore
       p_tipcol = '3'.
 
     WHEN OTHERS.
@@ -71,7 +71,7 @@ FORM f_conv_tipcol
 ENDFORM.
 
 ************************************************************************
-* Conversão Sexo (LTipSex)
+* Convers??o Sexo (LTipSex)
 ************************************************************************
 FORM f_conv_tipsex
   USING    p_gesch
@@ -92,7 +92,7 @@ FORM f_conv_tipsex
 ENDFORM.
 
 ************************************************************************
-* Conversão Estado Civil (LEstCiv)
+* Convers??o Estado Civil (LEstCiv)
 ************************************************************************
 FORM f_conv_estciv
   USING    p_famst
@@ -118,7 +118,7 @@ FORM f_conv_estciv
 ENDFORM.
 
 ************************************************************************
-* Conversão Raça/Cor (LRacCor)
+* Convers??o Ra??a/Cor (LRacCor)
 ************************************************************************
 FORM f_conv_raccor
   USING    p_race
@@ -142,7 +142,7 @@ FORM f_conv_raccor
 ENDFORM.
 
 ************************************************************************
-* Conversão Sim/Não (LSimNao)
+* Convers??o Sim/N??o (LSimNao)
 ************************************************************************
 FORM f_conv_simnao
   USING    p_flag
@@ -163,7 +163,7 @@ FORM f_conv_simnao
 ENDFORM.
 
 ************************************************************************
-* Conversão Pagamento Sindicato (LPagSin)
+* Convers??o Pagamento Sindicato (LPagSin)
 ************************************************************************
 FORM f_conv_pagsin
   USING    p_val
@@ -186,7 +186,7 @@ FORM f_conv_pagsin
 ENDFORM.
 
 ************************************************************************
-* Conversão Modo Pagamento (LModPag)
+* Convers??o Modo Pagamento (LModPag)
 ************************************************************************
 FORM f_conv_modpag
   USING    p_zlsch
@@ -211,7 +211,7 @@ FORM f_conv_modpag
 ENDFORM.
 
 ************************************************************************
-* Conversão Tipo Aposentadoria (LTipApo)
+* Convers??o Tipo Aposentadoria (LTipApo)
 ************************************************************************
 FORM f_conv_tipapo
   USING    p_tipo
@@ -235,7 +235,7 @@ FORM f_conv_tipapo
 ENDFORM.
 
 ************************************************************************
-* Conversão Tipo Conta Bancária (LTpCtBa)
+* Convers??o Tipo Conta Banc??ria (LTpCtBa)
 ************************************************************************
 FORM f_conv_tipctba
   USING    p_type
@@ -257,7 +257,7 @@ FORM f_conv_tipctba
 ENDFORM.
 
 ************************************************************************
-* Conversão Período Pagamento (LPerPag)
+* Convers??o Per??odo Pagamento (LPerPag)
 ************************************************************************
 FORM f_conv_perpag
   USING    p_per
@@ -279,7 +279,7 @@ FORM f_conv_perpag
 ENDFORM.
 
 ************************************************************************
-* Conversão Tipo Chave Pix (LTipChv)
+* Convers??o Tipo Chave Pix (LTipChv)
 ************************************************************************
 FORM f_conv_tipchv
   USING    p_tipo
@@ -300,7 +300,7 @@ FORM f_conv_tipchv
 ENDFORM.
 
 ************************************************************************
-* Conversão Estado (LEstFed)
+* Convers??o Estado (LEstFed)
 ************************************************************************
 
 FORM f_conv_estfed
@@ -327,17 +327,17 @@ FORM f_conv_tipcon
 
   CASE p_empid.
 
-    WHEN '01'. " Funcionário
+    WHEN '01'. " Funcion??rio
       p_tipcon = '1'.  " Empregado
 
     WHEN '02'. " Trabalhador Rural
       p_tipcon = '3'.  " Trabalhador Rural
 
-    WHEN '03'. " Estatutário
-      p_tipcon = '9'.  " Agente Público
+    WHEN '03'. " Estatut??rio
+      p_tipcon = '9'.  " Agente P??blico
 
-    WHEN '04'. " Estagiário
-      p_tipcon = '5'.  " Estagiário
+    WHEN '04'. " Estagi??rio
+      p_tipcon = '5'.  " Estagi??rio
 
     WHEN '05'. " Diretor
       p_tipcon = '2'.  " Diretor
@@ -345,10 +345,10 @@ FORM f_conv_tipcon
     WHEN '06'. " Conselheiro
       p_tipcon = '2'.  " Diretor
 
-    WHEN '07'. " Temporário
+    WHEN '07'. " Tempor??rio
       p_tipcon = '7'.  " Prazo Determinado
 
-    WHEN '08'. " Autônomo
+    WHEN '08'. " Aut??nomo
       p_tipcon = '11'. " Cooperado
 
     WHEN '09'. " Pensionista
@@ -411,7 +411,7 @@ FORM f_conv_mes
     p_mes_out = p_mes.
   ENDIF.
 
-  " Garantir 2 posições
+  " Garantir 2 posi????es
   IF strlen( p_mes_out ) = 1.
     p_mes_out = |0{ p_mes_out }|.
   ENDIF.
@@ -426,10 +426,10 @@ FORM f_conv_tpomvt
 
   CASE p_massn.
 
-    WHEN '1'. p_tpomvt = '1'. " Admissão
-    WHEN '2'. p_tpomvt = '2'. " Demissão
-    WHEN '3'. p_tpomvt = '3'. " Transferência
-    WHEN '4'. p_tpomvt = '4'. " Promoção
+    WHEN '1'. p_tpomvt = '1'. " Admiss??o
+    WHEN '2'. p_tpomvt = '2'. " Demiss??o
+    WHEN '3'. p_tpomvt = '3'. " Transfer??ncia
+    WHEN '4'. p_tpomvt = '4'. " Promo????o
 
     WHEN OTHERS.
       p_tpomvt = '0'. " Default
@@ -447,13 +447,13 @@ FORM f_conv_mtvalt
   CASE p_massg.
 
     WHEN '04' OR '05'.
-      p_mtvalt = '1'. " Alteração cargo
+      p_mtvalt = '1'. " Altera????o cargo
 
     WHEN '06'.
-      p_mtvalt = '2'. " Alteração função
+      p_mtvalt = '2'. " Altera????o fun????o
 
     WHEN OTHERS.
-      p_mtvalt = '0'. " Default obrigatório
+      p_mtvalt = '0'. " Default obrigat??rio
 
   ENDCASE.
 
@@ -468,10 +468,10 @@ FORM f_conv_tipmot
   CASE p_massg.
 
     WHEN '01' OR '02' OR '03'.
-      p_tipmot = 'A'. " Admissão
+      p_tipmot = 'A'. " Admiss??o
 
     WHEN '04' OR '05' OR '06'.
-      p_tipmot = 'M'. " Movimentação
+      p_tipmot = 'M'. " Movimenta????o
 
     WHEN '07' OR '08'.
       p_tipmot = 'D'. " Desligamento
@@ -494,22 +494,22 @@ FORM f_conv_admeso
     CASE p_massg.
 
       WHEN '02'. " Emprego Adquirido
-        p_admeso = '4'. " Transferência por motivo de sucessão, incorporação, cisão ou fusão
+        p_admeso = '4'. " Transfer??ncia por motivo de sucess??o, incorpora????o, cis??o ou fus??o
 
-      WHEN '03'. " Nova Contratação
-        p_admeso = '1'. " Admissão
+      WHEN '03'. " Nova Contrata????o
+        p_admeso = '1'. " Admiss??o
 
       WHEN '07'. " Contrato por prazo determinado
-        p_admeso = '1'. " Admissão
+        p_admeso = '1'. " Admiss??o
 
       WHEN '08'. " Primeiro empregado
-        p_admeso = '1'. " Admissão
+        p_admeso = '1'. " Admiss??o
 
-      WHEN '10'. " Nova Contratação (Ev.2190)
-        p_admeso = '1'. " Admissão
+      WHEN '10'. " Nova Contrata????o (Ev.2190)
+        p_admeso = '1'. " Admiss??o
 
-      WHEN '11'. " Reemprego (Recontratação)
-        p_admeso = '1'. " Admissão
+      WHEN '11'. " Reemprego (Recontrata????o)
+        p_admeso = '1'. " Admiss??o
 
       WHEN OTHERS.
         p_admeso = '1'.
@@ -526,11 +526,11 @@ FORM f_conv_indadm
 
   CLEAR p_indadm.
 
-  p_indadm = '1'. " padrão = Normal
+  p_indadm = '1'. " padr??o = Normal
 
   IF p_massn = 'ZA'
  AND p_massg = '01'.
-    p_indadm = '3'. " Decorrente de Decisão Judicial
+    p_indadm = '3'. " Decorrente de Decis??o Judicial
   ENDIF.
 
 ENDFORM.
@@ -542,28 +542,28 @@ FORM f_conv_tipadm
 
   CLEAR p_tipadm.
 
-  p_tipadm = '1'. " padrão
+  p_tipadm = '1'. " padr??o
 
   IF p_massn = 'Z1'.
 
     CASE p_massg.
 
-      WHEN '01'. " Transf Internacional-Contratação
-        p_tipadm = '5'.  " Incorporação/Fusão/Cisão/Outros
+      WHEN '01'. " Transf Internacional-Contrata????o
+        p_tipadm = '5'.  " Incorpora????o/Fus??o/Cis??o/Outros
 
       WHEN '02'. " Emprego Adquirido
-        p_tipadm = '5'.  " Incorporação/Fusão/Cisão/Outros
+        p_tipadm = '5'.  " Incorpora????o/Fus??o/Cis??o/Outros
 
-      WHEN '03'. " Nova Contratação
+      WHEN '03'. " Nova Contrata????o
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '04'. " Transferência Protegida (c/TUP)
-        p_tipadm = '3'.  " Transferência c/ Ônus
+      WHEN '04'. " Transfer??ncia Protegida (c/TUP)
+        p_tipadm = '3'.  " Transfer??ncia c/ ??nus
 
-      WHEN '05'. " Reintegração
-        p_tipadm = '6'.  " Reintegração
+      WHEN '05'. " Reintegra????o
+        p_tipadm = '6'.  " Reintegra????o
 
-      WHEN '06'. " Headcount Orçado
+      WHEN '06'. " Headcount Or??ado
         p_tipadm = '1'.  " Primeiro Emprego
 
       WHEN '07'. " Contrato por prazo determinado
@@ -572,13 +572,13 @@ FORM f_conv_tipadm
       WHEN '08'. " Primeiro empregado
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '09'. " Substituição
+      WHEN '09'. " Substitui????o
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '10'. " Nova Contratação (Ev.2190)
+      WHEN '10'. " Nova Contrata????o (Ev.2190)
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '11'. " Reemprego (Recontratação)
+      WHEN '11'. " Reemprego (Recontrata????o)
         p_tipadm = '2'.  " Reemprego
 
       WHEN OTHERS.
@@ -588,4 +588,120 @@ FORM f_conv_tipadm
 
   ENDIF.
 
+ENDFORM.
+
+FORM f_remove_special
+  USING    p_value
+  CHANGING p_result.
+
+  DATA lv_value TYPE string.
+
+  lv_value = p_value.
+  REPLACE ALL OCCURRENCES OF REGEX '[^0-9A-Za-z]' IN lv_value WITH ''.
+  p_result = lv_value.
+
+ENDFORM.
+
+FORM f_split_phone
+  USING    p_phone
+  CHANGING p_ddi
+           p_ddd
+           p_num.
+
+  DATA lv_phone TYPE string.
+  DATA lv_len   TYPE i.
+
+  CLEAR: p_ddi, p_ddd, p_num.
+
+  lv_phone = p_phone.
+
+  REPLACE ALL OCCURRENCES OF '(' IN lv_phone WITH ''.
+  REPLACE ALL OCCURRENCES OF ')' IN lv_phone WITH ''.
+  REPLACE ALL OCCURRENCES OF '-' IN lv_phone WITH ''.
+  REPLACE ALL OCCURRENCES OF ' ' IN lv_phone WITH ''.
+  REPLACE ALL OCCURRENCES OF '/' IN lv_phone WITH ''.
+  REPLACE ALL OCCURRENCES OF '.' IN lv_phone WITH ''.
+  CONDENSE lv_phone NO-GAPS.
+
+  lv_len = strlen( lv_phone ).
+
+  IF lv_len >= 10.
+    p_ddd = lv_phone+0(2).
+    p_num = lv_phone+2.
+  ELSEIF lv_len > 2.
+    p_ddd = lv_phone+0(2).
+    p_num = lv_phone+2.
+  ELSE.
+    p_num = lv_phone.
+  ENDIF.
+
+ENDFORM.
+FORM f_salvar_arquivo USING pv_filename TYPE string
+                     CHANGING pt_file TYPE STANDARD TABLE
+                              p_locl TYPE string
+                              p_serv TYPE string.
+  DATA:
+    lv_folder   TYPE string,
+    lv_server   TYPE string,
+    lv_fullpath TYPE string,
+    lv_line     TYPE string.
+  DATA:
+    lv_last TYPE c LENGTH 1,
+    lv_len  TYPE i.
+  lv_server = p_serv.
+  IF lv_server IS NOT INITIAL.
+    lv_len = strlen( lv_server ) - 1.
+    IF lv_len >= 0.
+      lv_last = lv_server+lv_len(1).
+      IF lv_last <> '\' AND lv_last <> '/'.
+        CONCATENATE lv_server '/' INTO lv_server.
+      ENDIF.
+    ENDIF.
+    CONCATENATE lv_server pv_filename INTO lv_fullpath.
+    OPEN DATASET lv_fullpath FOR OUTPUT
+      IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    IF sy-subrc <> 0.
+      MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
+    ENDIF.
+    LOOP AT pt_file INTO lv_line.
+      TRANSFER lv_line TO lv_fullpath.
+    ENDLOOP.
+    CLOSE DATASET lv_fullpath.
+    p_serv = lv_server.
+    RETURN.
+  ENDIF.
+  lv_folder = p_locl.
+  IF lv_folder IS INITIAL.
+    CALL METHOD cl_gui_frontend_services=>directory_browse
+      CHANGING
+        selected_folder      = lv_folder
+      EXCEPTIONS
+        cntl_error           = 1
+        error_no_gui         = 2
+        not_supported_by_gui = 3
+        OTHERS               = 4.
+    IF sy-subrc <> 0 OR lv_folder IS INITIAL.
+      MESSAGE 'Selecao de diretorio cancelada.' TYPE 'E'.
+    ENDIF.
+  ENDIF.
+  lv_len = strlen( lv_folder ) - 1.
+  IF lv_len >= 0.
+    lv_last = lv_folder+lv_len(1).
+    IF lv_last <> '\' AND lv_last <> '/'.
+      CONCATENATE lv_folder '\' INTO lv_folder.
+    ENDIF.
+  ENDIF.
+  CONCATENATE lv_folder pv_filename INTO lv_fullpath.
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+      filename = lv_fullpath
+      filetype = 'ASC'
+    TABLES
+      data_tab = pt_file
+    EXCEPTIONS
+      OTHERS   = 1.
+  IF sy-subrc <> 0.
+    MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
+  ENDIF.
+  p_locl = lv_folder.
 ENDFORM.

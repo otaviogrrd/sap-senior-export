@@ -74,7 +74,7 @@ FORM f_create_report USING p_layout TYPE char4.
   APPEND | | TO lt_source.
   APPEND |  DATA: gv_filename TYPE string.| TO lt_source.
   APPEND | | TO lt_source.
-  APPEND |  gv_filename = p_serv && sy-datum && '_{ p_layout }.csv'.| TO lt_source.
+  APPEND |  gv_filename = p_serv && sy-datum && '_SENIOR_{ p_layout }.csv'.| TO lt_source.
   APPEND | | TO lt_source.
   APPEND |  OPEN DATASET gv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT.| TO lt_source.
   APPEND | | TO lt_source.
