@@ -6,8 +6,8 @@ TYPES: BEGIN OF gy_file,
          nomesc TYPE c LENGTH 30,
          tipesc TYPE c LENGTH 1,
          turesc TYPE n LENGTH 1,
-         hordsr TYPE t,
-         horsem TYPE t,
+         hordsr TYPE p DECIMALS 2,
+         horsem TYPE p DECIMALS 2,
          pagepf TYPE c LENGTH 1,
          tipfer TYPE c LENGTH 1,
          tipjor TYPE n LENGTH 1,
@@ -20,18 +20,18 @@ DATA: gt_file TYPE TABLE OF gy_file.
 
 *-Tela de Seleção -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF BLOCK blc1 WITH FRAME TITLE text-001.
-PARAMETERS: p_dir TYPE string LOWER CASE.
+PARAMETERS: p_serv TYPE sapb-sappfad DEFAULT '/usr/sap/tmp/'.
 SELECTION-SCREEN END OF BLOCK blc1.
 *-Evento antes do processamento ---------------------------------------
 AT SELECTION-SCREEN OUTPUT.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_dir.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
   PERFORM zf_search_help_directory.
 
 START-OF-SELECTION.
 
-  IF p_dir IS INITIAL.
-    MESSAGE 'Informe o diretorio local de destino.' TYPE 'E'.
+  IF p_serv IS INITIAL.
+    MESSAGE 'Informe o caminho de destino do arquivo no servidor.' TYPE 'E'.
   ENDIF.
 
   PERFORM f_normalizar_caminhos.
@@ -42,18 +42,16 @@ START-OF-SELECTION.
 *&---------------------------------------------------------------------*
 FORM zf_search_help_directory.
 
-  DATA lv_folder TYPE string.
-  CALL METHOD cl_gui_frontend_services=>directory_browse
-    CHANGING
-      selected_folder      = lv_folder
+  DATA lv_serverfile TYPE string.
+  CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
+    IMPORTING
+      serverfile       = lv_serverfile
     EXCEPTIONS
-      cntl_error           = 1
-      error_no_gui         = 2
-      not_supported_by_gui = 3
-      OTHERS               = 4.
+      canceled_by_user = 1
+      OTHERS           = 2.
 
-  IF NOT lv_folder IS INITIAL.
-    p_dir = lv_folder.
+  IF NOT lv_serverfile IS INITIAL.
+    p_serv = |{ lv_serverfile }/|.
   ENDIF.
 
 ENDFORM.
@@ -63,12 +61,12 @@ ENDFORM.
 FORM f_normalizar_caminhos.
 
   DATA lv_last TYPE c LENGTH 1.
-  DATA(vl_strlen) = strlen( p_dir ) - 1.
+  DATA(vl_strlen) = strlen( p_serv ) - 1.
 
-  IF p_dir IS NOT INITIAL.
-    lv_last = p_dir+vl_strlen(1).
-    IF lv_last <> '/' AND lv_last <> '\'.
-      CONCATENATE p_dir '\' INTO p_dir.
+  IF p_serv IS NOT INITIAL.
+    lv_last = p_serv+vl_strlen(1).
+    IF lv_last <> '/'.
+      CONCATENATE p_serv '/' INTO p_serv.
     ENDIF.
   ENDIF.
 
@@ -88,18 +86,23 @@ FORM f_exportar_dados.
 
   DATA: lv_erro TYPE flag.
 
-  lv_filename = p_dir && sy-datum && '_SENIOR_1052.csv'.
+  lv_filename = p_serv && sy-datum && '_SENIOR_1052.csv'.
+  OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+  IF sy-subrc <> 0.
+    MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
+  ENDIF.
 
-  SELECT pa0000~pernr,
-         pa0001~persg,pa0001~persk,
-         pa0007~schkz,pa0007~wostd
-   INTO TABLE @DATA(lt_dados)
-   FROM pa0000
-   INNER JOIN pa0001 ON pa0001~pernr EQ pa0000~pernr
-   INNER JOIN pa0007 ON pa0007~pernr EQ pa0000~pernr
-  WHERE pa0000~endda EQ '99991231'
-    AND pa0001~endda EQ '99991231'
-    AND pa0007~endda EQ '99991231'.
+  SELECT t508a~schkz,t508a~zmodn,t508a~wostd,
+         t508s~rtext
+    INTO TABLE @DATA(lt_dados)
+    FROM t508a
+    INNER JOIN t508s ON t508s~zeity EQ t508a~zeity
+                    AND t508s~mofid EQ t508a~mofid
+                    AND t508s~mosid EQ t508a~mosid
+                    AND t508s~schkz EQ t508a~schkz
+   WHERE t508a~mofid EQ 'BR'
+     AND t508a~mosid EQ '37'
+     AND t508s~sprsl EQ @sy-langu.
 
   LOOP AT lt_dados ASSIGNING FIELD-SYMBOL(<lf_dados>).
     PERFORM zf_process_registration USING <lf_dados>.
@@ -128,26 +131,18 @@ FORM f_exportar_dados.
   ENDIF.
   INSERT lv_header INTO lt_conv INDEX 1.
 
-  PERFORM f_salvar_arquivo USING lv_filename CHANGING lt_conv.
+  LOOP AT lt_conv INTO DATA(ls_conv).
+    TRANSFER ls_conv TO lv_filename.
+    IF sy-subrc NE 0.
+      lv_erro = abap_true. EXIT.
+    ENDIF.
+  ENDLOOP.
+  CLOSE DATASET lv_filename.
 
-  WRITE: / 'Arquivo gerado com sucesso:', lv_filename.
-
-ENDFORM.
-
-FORM f_salvar_arquivo USING pv_filename TYPE string
-                      CHANGING pt_file TYPE truxs_t_text_data.
-
-  CALL FUNCTION 'GUI_DOWNLOAD'
-    EXPORTING
-      filename = pv_filename
-      filetype = 'ASC'
-    TABLES
-      data_tab = pt_file
-    EXCEPTIONS
-      OTHERS   = 1.
-
-  IF sy-subrc <> 0.
-    MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
+  IF lv_erro IS NOT INITIAL.
+    MESSAGE 'Erro ao gerar arquivo' TYPE 'E'.
+  ELSE.
+    WRITE: / 'Arquivo gerado com sucesso:', lv_filename.
   ENDIF.
 
 ENDFORM.
@@ -156,14 +151,6 @@ ENDFORM.
 *&---------------------------------------------------------------------*
 FORM zf_process_registration USING us_dados TYPE any.
 
-  DATA: lv_persg  TYPE persg,
-        lv_persk  TYPE persk,
-        lv_schkz  TYPE schkn,
-        lv_rtext  TYPE char100,
-        lv_tipcol TYPE c LENGTH 1,
-        lv_dats   TYPE d,
-        lv_datopc TYPE char10.
-
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
   " Código da Escala
@@ -171,20 +158,14 @@ FORM zf_process_registration USING us_dados TYPE any.
   <lf_file>-codesc = <lf_value>.
 
   " Nome da Escala
-  ASSIGN COMPONENT 'PERSG' OF STRUCTURE us_dados TO <lf_value>.
-  lv_persg = <lf_value>.
-  ASSIGN COMPONENT 'PERSK' OF STRUCTURE us_dados TO <lf_value>.
-  lv_persk = <lf_value>.
-
-  lv_schkz = <lf_file>-codesc.
-  PERFORM zf_get_texto_schkz USING lv_persg lv_persk lv_schkz CHANGING lv_rtext.
-  <lf_file>-nomesc = lv_rtext.
+  ASSIGN COMPONENT 'RTEXT' OF STRUCTURE us_dados TO <lf_value>.
+  <lf_file>-nomesc = <lf_value>.
 
   " Tipo da Escala
 *<lf_file>-TIPESC
 
   " Turno da Escala
-*<lf_file>-TURESC
+*  <lf_file>-turesc = .
 
   " Horas de DSR
 *<lf_file>-HORDSR
@@ -210,40 +191,5 @@ FORM zf_process_registration USING us_dados TYPE any.
 
   " Descrição da Jornada eSocial Simplificado
 *<lf_file>-DESSIM
-
-ENDFORM.
-*&---------------------------------------------------------------------*
-*&      Form  ZF_GET_TEXTO_SCHKZ
-*&---------------------------------------------------------------------*
-FORM zf_get_texto_schkz USING uv_persg TYPE persg
-                              uv_persk TYPE persk
-                              uv_schkz TYPE schkn
-                     CHANGING cv_rtext TYPE char100.
-
-  CLEAR cv_rtext.
-  SELECT SINGLE persg,persk,zeity INTO @DATA(ls_t503)
-     FROM t503
-   WHERE persg EQ @uv_persg
-     AND persk EQ @uv_persk.
-  IF sy-subrc EQ 0.
-    " Regra do plano de horário de trabalho
-    SELECT zeity,mofid,mosid,schkz,endda,begda,zmodn,wostd INTO @DATA(ls_t508a) UP TO 1 ROWS
-      FROM t508a
-     WHERE zeity EQ @ls_t503-zeity
-       AND mosid EQ @pbr99_molga
-       ORDER BY endda DESCENDING.
-    ENDSELECT.
-    IF sy-subrc EQ 0.
-      SELECT SINGLE schkz,rtext INTO @DATA(ls_t508s)
-        FROM t508s
-       WHERE zeity EQ @ls_t503-zeity
-         AND mofid EQ @ls_t508a-mofid
-         AND mosid EQ @ls_t508a-mosid
-         AND schkz EQ @uv_schkz.
-      IF sy-subrc EQ 0.
-        cv_rtext = to_upper( ls_t508s-rtext ).
-      ENDIF.
-    ENDIF.
-  ENDIF.
 
 ENDFORM.
