@@ -1,4 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1021.
+REPORT zhr_senior_exp_1021.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;EMPATU;CADATU;CODFIL;TIPADM;FICREG;ADMESO'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o (PA0001 + PA0000)
+* Sele��o (PA0001 + PA0000)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -48,7 +48,7 @@ FORM f_exportar_dados.
    AND p0~begda = p1~begda.
 
 *---------------------------------------------------------------------*
-* OrdenaÃ§Ã£o
+* Ordena��o
 *---------------------------------------------------------------------*
 
   SORT gt_hist BY pernr begda.
@@ -91,7 +91,7 @@ FORM f_exportar_dados.
     lv_last_werks = <fs_hist>-werks.
     lv_last_btrtl = <fs_hist>-btrtl.
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -103,15 +103,15 @@ FORM f_exportar_dados.
       CHANGING lv_datalt.
 
 *---------------------------------------------------------------------*
-* Tipo admissÃ£o (MASSN/MASSG)
+* Tipo admiss�o (MASSN/MASSG)
 *---------------------------------------------------------------------*
 
-    " TIPADM (2 posiÃ§Ãµes)
+    " TIPADM (2 posi��es)
     PERFORM f_conv_tipadm IN PROGRAM zhr_export_senior
       USING <fs_hist>-massn <fs_hist>-massg
       CHANGING lv_tipadm.
 
-    " ADMESO (1 posiÃ§Ã£o)
+    " ADMESO (1 posi��o)
     PERFORM f_conv_tipadm IN PROGRAM zhr_export_senior
       USING <fs_hist>-massn <fs_hist>-massg
       CHANGING lv_tipadm.

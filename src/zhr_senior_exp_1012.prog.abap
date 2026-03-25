@@ -1,5 +1,4 @@
-
-REPORT zhr_export_senior_1012.
+REPORT zhr_senior_exp_1012.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -34,7 +33,7 @@ FORM f_exportar_dados.
   && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF;'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o de colaboradores
+* Sele��o de colaboradores
 *---------------------------------------------------------------------*
 
   SELECT
@@ -91,7 +90,7 @@ WHERE p1~begda <= @sy-datum
   AND p1~endda >= @sy-datum.
 
 *---------------------------------------------------------------------*
-* Data admissÃ£o
+* Data admiss�o
 *---------------------------------------------------------------------*
 
   SELECT
@@ -242,7 +241,7 @@ WHERE p1~begda <= @sy-datum
       PERFORM f_conv_date IN PROGRAM zhr_export_senior USING <fs_estrang>-dt_arrv CHANGING lv_datche.
     ENDIF.
 *---------------------------------------------------------------------*
-* Banco / AgÃªncia / Conta
+* Banco / Ag�ncia / Conta
 *---------------------------------------------------------------------*
 
     CLEAR: lv_codban, lv_codage, lv_conban, lv_digban.

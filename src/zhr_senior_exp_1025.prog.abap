@@ -1,4 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1025.
+REPORT zhr_senior_exp_1025.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;DATTER;PERINS;PERPER;FATTPO;APOESP'.
 
 *---------------------------------------------------------------------*
-* SeleÃƒÂ§ÃƒÂ£o (PA0398 + PA0001)
+* Seleção (PA0398 + PA0001)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -78,7 +78,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* MUDANÃƒâ€¡A REAL
+* MUDANÇA REAL
 *---------------------------------------------------------------------*
 
     AT NEW pernr.
@@ -103,7 +103,7 @@ FORM f_exportar_dados.
     ENDIF.
 
 *---------------------------------------------------------------------*
-* ConversÃƒÂµes
+* Conversões
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior

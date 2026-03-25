@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1030.
+REPORT zhr_senior_exp_1030.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -77,7 +77,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* MUDANÃ‡A REAL (SALÃRIO)
+* MUDAN�A REAL (SAL�RIO)
 *---------------------------------------------------------------------*
 
     AT NEW pernr.
@@ -91,13 +91,13 @@ FORM f_exportar_dados.
     lv_lastsal = <fs_hist>-bet01.
 
 *---------------------------------------------------------------------*
-* SequÃªncia
+* Sequ�ncia
 *---------------------------------------------------------------------*
 
     ADD 1 TO lv_seqalt.
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior

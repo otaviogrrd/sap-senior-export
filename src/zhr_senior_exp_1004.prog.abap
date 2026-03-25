@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1004.
+REPORT zhr_senior_exp_1004.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,11 +29,11 @@ FORM f_exportar_dados.
   gv_header = 'ESTCAR;CODCAR;TITRED;TITCAR;CODCB2;DATCRI;DATEXT;CNHOBR;OCLOBR;CODSIG'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o de Cargos
+* Sele��o de Cargos
 *---------------------------------------------------------------------*
 
   SELECT
-    t513~stell,          " CÃ³digo cargo
+    t513~stell,          " C�digo cargo
     t513~begda,
     t513~endda,
     t513s~stltx,         " Texto curto

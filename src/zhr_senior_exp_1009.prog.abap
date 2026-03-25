@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1009.
+REPORT zhr_senior_exp_1009.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,11 +29,11 @@ FORM f_exportar_dados.
   gv_header = 'CODSIN;NOMSIN;SIGSIN;MESDIS;ENTALF;NUMCGC;ENDRUA;ENDNUM;ENDCPL;CODCID;ENDCEP;CODBAI;CODENT;CFJCGC'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o sindicatos
+* Sele��o sindicatos
 *---------------------------------------------------------------------*
 
   SELECT
-    t521b~emfsl,   " CÃ³digo sindicato
+    t521b~emfsl,   " C�digo sindicato
     t521b~etext,   " Nome
     t521b~stras,
     t521b~ort01,
@@ -70,7 +70,7 @@ FORM f_exportar_dados.
   LOOP AT gt_sind ASSIGNING FIELD-SYMBOL(<fs_sind>).
 
 *---------------------------------------------------------------------*
-* SIGLA (gerar se nÃ£o existir)
+* SIGLA (gerar se n�o existir)
 *---------------------------------------------------------------------*
 
     lv_sigla = ''.
@@ -95,7 +95,7 @@ FORM f_exportar_dados.
       CHANGING lv_mesdis.
 
 *---------------------------------------------------------------------*
-* CNPJ numÃ©rico (NUMCGC)
+* CNPJ num�rico (NUMCGC)
 *---------------------------------------------------------------------*
 
     lv_cnpj = <fs_sind>-uncgc.
@@ -105,13 +105,13 @@ FORM f_exportar_dados.
     REPLACE ALL OCCURRENCES OF '-' IN lv_cnpj WITH ''.
 
 *---------------------------------------------------------------------*
-* CNPJ alfanumÃ©rico (CFJCGC)
+* CNPJ alfanum�rico (CFJCGC)
 *---------------------------------------------------------------------*
 
     lv_cnpj_a = lv_cnpj.
 
 *---------------------------------------------------------------------*
-* CODENT (atÃ© 12 posiÃ§Ãµes)
+* CODENT (at� 12 posi��es)
 *---------------------------------------------------------------------*
 
     lv_codent = <fs_sind>-sindi.
@@ -132,7 +132,7 @@ FORM f_exportar_dados.
       <fs_sind>-sindi    && ';' && " ENTALF
       lv_cnpj            && ';' && " NUMCGC
       <fs_sind>-stras    && ';' && " ENDRUA
-      ''                 && ';' && " ENDNUM (nÃ£o separado no SAP)
+      ''                 && ';' && " ENDNUM (n�o separado no SAP)
       ''                 && ';' && " ENDCPL
       <fs_sind>-ort01    && ';' && " CODCID
       <fs_sind>-pstlz    && ';' && " ENDCEP

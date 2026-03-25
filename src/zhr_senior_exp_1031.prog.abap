@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1031.
+REPORT zhr_senior_exp_1031.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -104,7 +104,7 @@ FORM f_exportar_dados.
   LOOP AT gt_dep ASSIGNING FIELD-SYMBOL(<fs_dep>).
 
 *---------------------------------------------------------------------*
-* REGRA: CODDEP â‰  ZERO
+* REGRA: CODDEP ? ZERO
 *---------------------------------------------------------------------*
 
     lv_coddep = <fs_dep>-subty.
@@ -113,7 +113,7 @@ FORM f_exportar_dados.
     ENDIF.
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -137,16 +137,16 @@ FORM f_exportar_dados.
     CASE <fs_dep>-famsa.
 
       WHEN '1'. lv_tipdep = '01'. " Filho
-      WHEN '2'. lv_tipdep = '02'. " CÃ´njuge
+      WHEN '2'. lv_tipdep = '02'. " C�njuge
       WHEN '3'. lv_tipdep = '03'. " Pai
-      WHEN '4'. lv_tipdep = '04'. " MÃ£e
+      WHEN '4'. lv_tipdep = '04'. " M�e
       WHEN OTHERS.
         lv_tipdep = '99'.
 
     ENDCASE.
 
 *---------------------------------------------------------------------*
-* PensÃ£o Judicial
+* Pens�o Judicial
 *---------------------------------------------------------------------*
 
     DATA(lv_penjud) = 'N'.

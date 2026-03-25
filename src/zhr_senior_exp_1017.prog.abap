@@ -1,4 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1017.
+REPORT zhr_senior_exp_1017.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;CODCCU'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o histÃ³rico (PA0001)
+* Sele��o hist�rico (PA0001)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -42,7 +42,7 @@ FORM f_exportar_dados.
   FROM pa0001.
 
 *---------------------------------------------------------------------*
-* OrdenaÃ§Ã£o
+* Ordena��o
 *---------------------------------------------------------------------*
 
   SORT gt_hist BY pernr begda.
@@ -69,7 +69,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -86,7 +86,7 @@ FORM f_exportar_dados.
 
     lv_kostl = <fs_hist>-kostl.
 
-    " garantir zeros Ã  esquerda (formato tÃ©cnico)
+    " garantir zeros � esquerda (formato t�cnico)
     lv_kostl = |{ lv_kostl ALPHA = IN }|.
 
 *---------------------------------------------------------------------*

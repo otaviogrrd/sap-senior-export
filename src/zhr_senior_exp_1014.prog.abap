@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1014.
+REPORT zhr_senior_exp_1014.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -30,7 +30,7 @@ FORM f_exportar_dados.
     'ENDUZ;TIPCOL;NUMCAD;DATAFA;HORAFA;DATTER;HORTER;PRVTER;SITAFA;CAUDEM;DIAJUS;OBSAFA;CODDOE;NOMATE;ORGCLA;REGCON;ESTCON;MOTRAI'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o afastamentos
+* Sele��o afastamentos
 *---------------------------------------------------------------------*
 
   SELECT
@@ -70,7 +70,7 @@ FORM f_exportar_dados.
   LOOP AT gt_afast ASSIGNING FIELD-SYMBOL(<fs_afast>).
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior

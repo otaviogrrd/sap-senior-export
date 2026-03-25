@@ -1,5 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1010.
-
+REPORT zhr_senior_exp_1010.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -30,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'TABORG;CODLOC;LOCPAI;NOMLOC;DATCRI;DATEXT'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o OM (Locais)
+* Sele��o OM (Locais)
 *---------------------------------------------------------------------*
 
   SELECT

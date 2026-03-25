@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1008.
+REPORT zhr_senior_exp_1008.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -28,7 +28,7 @@ FORM f_exportar_dados.
   gv_header = 'CODBAN;CODAGE;NOMAGE;CODEST;CODCID;DIGAGE'.
 
 *---------------------------------------------------------------------*
-* Coletar dados do empregado (origem real das agÃªncias)
+* Coletar dados do empregado (origem real das ag�ncias)
 *---------------------------------------------------------------------*
 
   SELECT DISTINCT
@@ -80,7 +80,7 @@ FORM f_exportar_dados.
           lv_dig    TYPE string.
 
 *---------------------------------------------------------------------*
-* Banco / AgÃªncia
+* Banco / Ag�ncia
 *---------------------------------------------------------------------*
 
     lv_codban = <fs_bank>-bankl(3).
@@ -107,7 +107,7 @@ FORM f_exportar_dados.
       lv_nome = 'AGENCIA'.
     ENDIF.
 
-    lv_dig = ''. " nÃ£o existe no SAP
+    lv_dig = ''. " n�o existe no SAP
 
 *---------------------------------------------------------------------*
 * Linha
@@ -118,7 +118,7 @@ FORM f_exportar_dados.
       lv_codage && ';' && " CODAGE
       lv_nome   && ';' && " NOMAGE
       lv_estado && ';' && " CODEST
-      lv_cidade && ';' && " CODCID (precisa conversÃ£o IBGE)
+      lv_cidade && ';' && " CODCID (precisa convers�o IBGE)
       lv_dig.             " DIGAGE
 
     APPEND gv_line TO gt_file.

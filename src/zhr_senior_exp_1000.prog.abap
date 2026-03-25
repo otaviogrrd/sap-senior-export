@@ -1,11 +1,9 @@
-REPORT zhr_export_senior_1000.
+REPORT zhr_senior_exp_1000.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
   PERFORM f_selecionar_arquivo.
-
-" Caminho local para download
 
 START-OF-SELECTION.
 
@@ -16,7 +14,7 @@ FORM f_exportar_dados.
   DATA: gv_filename TYPE string,
         gv_header   TYPE string,
         gv_line     TYPE string,
-    gt_file     TYPE STANDARD TABLE OF string.
+        gt_file     TYPE STANDARD TABLE OF string.
 
   gv_filename = sy-datum && '_SENIOR_1000.csv'.
   gv_header = 'NUMEMP;NOMEMP;APEEMP;DDITEL;DDDTEL;NUMTEL'.
@@ -30,22 +28,16 @@ FORM f_exportar_dados.
     MESSAGE 'Nenhum dado encontrado na tabela SAP.' TYPE 'E'.
   ENDIF.
 
-  
-
   APPEND gv_header TO gt_file.
 
   LOOP AT tl_t001 ASSIGNING FIELD-SYMBOL(<fs_t001>).
 
-    " Criar uma linha para os dados de exportaÃƒÂ§ÃƒÂ£o
     gv_line = <fs_t001>-bukrs && ';' &&
               <fs_t001>-butxt && ';' &&
               <fs_t001>-butxt && ';' &&
               '00' && ';' &&
               '000' && ';' &&
               'N/E' .
-*             wl_t001w-telf1 && ';' &&
-*             wl_t001w-telf2 && ';' &&
-*             wl_t001w-telf3 .
 
     APPEND gv_line TO gt_file.
   ENDLOOP.

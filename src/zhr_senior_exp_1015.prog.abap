@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;ESTCAR;CODCAR;CODMOT'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o histÃ³rico (PA0001)
+* Sele��o hist�rico (PA0001)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -48,7 +48,7 @@ FORM f_exportar_dados.
    AND p0~endda GE  p1~begda.
 
 *---------------------------------------------------------------------*
-* Ordenar histÃ³rico
+* Ordenar hist�rico
 *---------------------------------------------------------------------*
 
   SORT gt_hist BY pernr begda.
@@ -71,7 +71,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior

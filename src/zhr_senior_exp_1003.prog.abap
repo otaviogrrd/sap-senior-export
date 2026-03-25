@@ -1,7 +1,6 @@
-REPORT ZHR_SENIOR_EXP_1003.
+REPORT zhr_senior_exp_1003.
 
-PARAMETERS: p_file TYPE string LOWER CASE,
-            p_head AS CHECKBOX DEFAULT 'X'.
+PARAMETERS: p_file TYPE string LOWER CASE.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
   PERFORM f_selecionar_arquivo.

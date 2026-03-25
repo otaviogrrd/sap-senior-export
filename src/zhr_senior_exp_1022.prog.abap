@@ -1,4 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1022.
+REPORT zhr_senior_exp_1022.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;INIETB;FIMETB;CODETB'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o (PA0598 + PA0001)
+* Sele��o (PA0598 + PA0001)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -45,7 +45,7 @@ FORM f_exportar_dados.
     ON p598~pernr = p1~pernr.
 
 *---------------------------------------------------------------------*
-* OrdenaÃ§Ã£o
+* Ordena��o
 *---------------------------------------------------------------------*
 
   SORT gt_hist BY pernr begda.
@@ -91,7 +91,7 @@ FORM f_exportar_dados.
 
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -107,7 +107,7 @@ FORM f_exportar_dados.
       CHANGING lv_fimetb.
 
 *---------------------------------------------------------------------*
-* CÃ³digo Estabilidade
+* C�digo Estabilidade
 *---------------------------------------------------------------------*
 
     lv_codetb = <fs_hist>-dptype.

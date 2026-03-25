@@ -1,4 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1019.
+REPORT zhr_senior_exp_1019.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,7 +29,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;CODVIN'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o histÃ³rico (PA0398)
+* Sele��o hist�rico (PA0398)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -44,7 +44,7 @@ FORM f_exportar_dados.
     ON p398~pernr = p1~pernr.
 
 *---------------------------------------------------------------------*
-* OrdenaÃ§Ã£o
+* Ordena��o
 *---------------------------------------------------------------------*
 
   SORT gt_hist BY pernr begda.
@@ -68,7 +68,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* ConversÃµes
+* Convers�es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -80,7 +80,7 @@ FORM f_exportar_dados.
       CHANGING lv_datalt.
 
 *---------------------------------------------------------------------*
-* Tipo de vÃ­nculo (IMPORTANTE)
+* Tipo de v�nculo (IMPORTANTE)
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcon IN PROGRAM zhr_export_senior

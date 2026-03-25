@@ -1,16 +1,15 @@
-REPORT ZHR_SENIOR_EXP_1002.
-
-PARAMETERS: p_file TYPE string LOWER CASE,
-            p_head AS CHECKBOX DEFAULT 'X'.
-
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
-  PERFORM f_selecionar_arquivo.
+REPORT zhr_senior_exp_1002.
 
 DATA: gv_filename TYPE string,
       gv_header   TYPE string,
       gv_line     TYPE string,
       gt_file     TYPE STANDARD TABLE OF string,
       gv_count    TYPE i.
+PARAMETERS: p_file TYPE string LOWER CASE.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  PERFORM f_selecionar_arquivo.
+
 
 START-OF-SELECTION.
 
@@ -37,10 +36,8 @@ FORM build_header.
 ENDFORM.
 
 FORM get_data.
-  
-  IF p_head = 'X'.
+
     APPEND gv_header TO gt_file.
-  ENDIF.
 
   " TODO: implementar SELECT e mapeamento do layout
   " Exemplo:

@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1013.
+REPORT zhr_senior_exp_1013.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -33,7 +33,7 @@ FORM f_exportar_dados.
            && 'DDITEL;DDDTEL;NUMTEL;NMDDI2;NMDDD2;NMTEL2;NOMSOC;PRICNH;DATCNH;CARSUS'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o base
+* Sele��o base
 *---------------------------------------------------------------------*
 
   SELECT
@@ -53,11 +53,11 @@ FORM f_exportar_dados.
     AND p1~endda >= @sy-datum.
 
   IF sy-subrc <> 0.
-    MESSAGE 'Nenhum dado encontrado na seleÃ§Ã£o base.' TYPE 'E'.
+    MESSAGE 'Nenhum dado encontrado na sele��o base.' TYPE 'E'.
   ENDIF.
 
 *---------------------------------------------------------------------*
-* EndereÃ§o / Telefone
+* Endere�o / Telefone
 *---------------------------------------------------------------------*
 
   SELECT
@@ -107,7 +107,7 @@ FORM f_exportar_dados.
   WHERE subty = '0002'.
 
 *---------------------------------------------------------------------*
-* TÃ­tulo de Eleitor
+* T�tulo de Eleitor
 *---------------------------------------------------------------------*
 
   SELECT
@@ -159,7 +159,7 @@ FORM f_exportar_dados.
   WHERE subty = '0004'.
 
 *---------------------------------------------------------------------*
-* Estrangeiro / Registro contrato / prorrogaÃ§Ãµes
+* Estrangeiro / Registro contrato / prorroga��es
 *---------------------------------------------------------------------*
 
   SELECT
@@ -274,7 +274,7 @@ FORM f_exportar_dados.
       CHANGING lv_tipcol.
 
 *---------------------------------------------------------------------*
-* EndereÃ§o / Telefone
+* Endere�o / Telefone
 *---------------------------------------------------------------------*
 
     READ TABLE gt_0006 ASSIGNING FIELD-SYMBOL(<fs_0006>)
@@ -333,7 +333,7 @@ FORM f_exportar_dados.
     ENDIF.
 
 *---------------------------------------------------------------------*
-* TÃ­tulo eleitor
+* T�tulo eleitor
 *---------------------------------------------------------------------*
 
     READ TABLE gt_0465_0005 ASSIGNING FIELD-SYMBOL(<fs_ele>)

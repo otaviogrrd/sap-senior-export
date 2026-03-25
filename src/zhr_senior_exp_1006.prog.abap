@@ -1,4 +1,4 @@
-REPORT zhr_export_senior_1006.
+REPORT zhr_senior_exp_1006.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
@@ -29,13 +29,13 @@ FORM f_exportar_dados.
   gv_header = 'CODMOT;NOMMOT;TIPMOT;MTVALT;TPOMVT'.
 
 *---------------------------------------------------------------------*
-* SeleÃ§Ã£o de motivos (T530)
+* Sele��o de motivos (T530)
 *---------------------------------------------------------------------*
 
   SELECT
-    massg,   " CÃ³digo motivo
-    mgtxt,   " DescriÃ§Ã£o
-    massn    " Tipo movimentaÃ§Ã£o
+    massg,   " C�digo motivo
+    mgtxt,   " Descri��o
+    massn    " Tipo movimenta��o
   INTO TABLE @DATA(gt_motivos)
   FROM t530t.
 

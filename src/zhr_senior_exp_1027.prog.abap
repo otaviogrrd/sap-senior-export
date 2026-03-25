@@ -1,4 +1,4 @@
-REPORT ZHR_SENIOR_EXP_1027.
+REPORT zhr_senior_exp_1027.
 
 PARAMETERS: p_file TYPE string LOWER CASE.
 
