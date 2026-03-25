@@ -3,6 +3,50 @@ REPORT zhr_senior_exp_1037.
 PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
+TYPES: BEGIN OF ty_term,
+         pernr  TYPE pernr_d,
+         datdem TYPE begda,
+         massn  TYPE massn,
+         massg  TYPE massg,
+         bukrs  TYPE bukrs,
+         persg  TYPE persg,
+       END OF ty_term.
+
+TYPES: BEGIN OF ty_pay,
+         pernr  TYPE pernr_d,
+         datdem TYPE begda,
+         massn  TYPE massn,
+         massg  TYPE massg,
+         bukrs  TYPE bukrs,
+         persg  TYPE persg,
+         paydt  TYPE pc261-paydt,
+         fpbeg  TYPE pc261-fpbeg,
+         fpend  TYPE pc261-fpend,
+         seqnr  TYPE pc261-seqnr,
+         relid  TYPE pc261-relid,
+         rank   TYPE i,
+       END OF ty_pay.
+
+TYPES: BEGIN OF ty_0008,
+         pernr TYPE pernr_d,
+         begda TYPE begda,
+         endda TYPE endda,
+         bet01 TYPE pa0008-bet01,
+       END OF ty_0008.
+
+TYPES: BEGIN OF ty_0016,
+         pernr TYPE pernr_d,
+         begda TYPE begda,
+         endda TYPE endda,
+         ctedt TYPE pa0016-ctedt,
+       END OF ty_0016.
+
+TYPES: BEGIN OF ty_reason,
+         massn TYPE massn,
+         massg TYPE massg,
+         mgtxt TYPE t530t-mgtxt,
+       END OF ty_reason.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -19,18 +63,522 @@ FORM f_export.
 
   DATA: gv_filename TYPE string,
         gv_header   TYPE string,
+        gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
 
-  gv_filename = sy-datum && '_1037.csv'.
+  DATA: gt_term   TYPE STANDARD TABLE OF ty_term,
+        gt_pay    TYPE STANDARD TABLE OF ty_pay,
+        gt_0008   TYPE STANDARD TABLE OF ty_0008,
+        gt_0016   TYPE STANDARD TABLE OF ty_0016,
+        gt_reason TYPE STANDARD TABLE OF ty_reason.
+
+  gv_filename = sy-datum && '_SENIOR_1037.csv'.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATPAG;QTDIND;QTDREA;QTDSSL;'
   && 'QTDFCA;SALFAV;SLDFGT;DISCOL;TEMDIS;SALBAS;CALRCS;'
   && 'AVIPRE;QTDIAC;QTDRAC;TERQUI'.
 
   APPEND gv_header TO gt_file.
 
+  SELECT
+    p0~pernr,
+    p0~begda AS datdem,
+    p0~massn,
+    p0~massg,
+    p1~bukrs,
+    p1~persg
+    INTO TABLE @gt_term
+    FROM pa0000 AS p0
+    LEFT JOIN pa0001 AS p1
+      ON p1~pernr = p0~pernr
+     AND p1~begda <= p0~begda
+     AND p1~endda >= p0~begda
+   WHERE p0~stat2 = '0'
+     AND p0~begda <= @sy-datum.
+
+  IF gt_term IS INITIAL.
+    PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
+    WRITE: / 'Layout 1037 gerado:', gv_filename.
+    RETURN.
+  ENDIF.
+
+  SORT gt_term BY pernr datdem massn massg.
+  DELETE ADJACENT DUPLICATES FROM gt_term COMPARING pernr datdem massn massg.
+
+  SELECT
+    pernr,
+    begda,
+    endda,
+    bet01
+    INTO TABLE @gt_0008
+    FROM pa0008
+    FOR ALL ENTRIES IN @gt_term
+   WHERE pernr = @gt_term-pernr.
+
+  SELECT
+    pernr,
+    begda,
+    endda,
+    ctedt
+    INTO TABLE @gt_0016
+    FROM pa0016
+    FOR ALL ENTRIES IN @gt_term
+   WHERE pernr = @gt_term-pernr.
+
+  SELECT
+    massn,
+    massg,
+    mgtxt
+    INTO TABLE @gt_reason
+    FROM t530t
+    FOR ALL ENTRIES IN @gt_term
+   WHERE sprsl = @sy-langu
+     AND massn = @gt_term-massn
+     AND massg = @gt_term-massg.
+
+  SORT gt_0008 BY pernr begda DESCENDING.
+  SORT gt_0016 BY pernr begda DESCENDING.
+  SORT gt_reason BY massn massg.
+
+  PERFORM f_collect_payments
+    TABLES gt_term gt_pay.
+
+  IF gt_pay IS INITIAL.
+    PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
+    WRITE: / 'Layout 1037 gerado:', gv_filename.
+    RETURN.
+  ENDIF.
+
+  LOOP AT gt_pay ASSIGNING FIELD-SYMBOL(<fs_pay>) WHERE rank > 1.
+
+    DATA: lv_numemp TYPE string,
+          lv_tipcol TYPE string,
+          lv_numcad TYPE string,
+          lv_datpag TYPE string,
+          lv_qtdind TYPE string,
+          lv_qtdrea TYPE string,
+          lv_qtdssl TYPE string,
+          lv_qtdfca TYPE string,
+          lv_salfav TYPE string,
+          lv_sldfgt TYPE string,
+          lv_discol TYPE string,
+          lv_temdis TYPE string,
+          lv_salbas TYPE string,
+          lv_calrcs TYPE string,
+          lv_avipre TYPE string,
+          lv_qtdiac TYPE string,
+          lv_qtdrac TYPE string,
+          lv_terqui TYPE string.
+
+    DATA: lv_qtdind_num TYPE p LENGTH 8 DECIMALS 2,
+          lv_qtdrea_num TYPE p LENGTH 8 DECIMALS 2,
+          lv_qtdssl_num TYPE p LENGTH 8 DECIMALS 2,
+          lv_qtdfca_num TYPE p LENGTH 8 DECIMALS 2,
+          lv_qtdiac_num TYPE p LENGTH 8 DECIMALS 2,
+          lv_qtdrac_num TYPE p LENGTH 8 DECIMALS 2,
+          lv_salbas_num TYPE p LENGTH 11 DECIMALS 2,
+          lv_salfav_num TYPE p LENGTH 11 DECIMALS 2,
+          lv_sldfgt_num TYPE p LENGTH 11 DECIMALS 2.
+
+    DATA: lt_rt TYPE STANDARD TABLE OF pc207,
+          lv_reason_text TYPE string,
+          lv_contract_end TYPE datum.
+
+    PERFORM f_read_payroll_result
+      USING <fs_pay>-pernr <fs_pay>-seqnr <fs_pay>-relid
+      CHANGING lt_rt.
+
+    PERFORM f_collect_rt_values
+      TABLES lt_rt
+      USING <fs_pay>-datdem
+      CHANGING lv_qtdind_num
+               lv_qtdrea_num
+               lv_qtdssl_num
+               lv_qtdfca_num
+               lv_qtdiac_num
+               lv_qtdrac_num
+               lv_sldfgt_num.
+
+    PERFORM f_get_salary_base
+      TABLES gt_0008
+      USING <fs_pay>-pernr <fs_pay>-datdem
+      CHANGING lv_salbas_num.
+
+    lv_salfav_num = lv_salbas_num.
+
+    PERFORM f_get_contract_end
+      TABLES gt_0016
+      USING <fs_pay>-pernr <fs_pay>-datdem
+      CHANGING lv_contract_end.
+
+    IF lv_contract_end IS NOT INITIAL
+       AND lv_contract_end > <fs_pay>-datdem
+       AND lv_qtdfca_num IS INITIAL.
+      lv_qtdfca_num = lv_contract_end - <fs_pay>-datdem.
+    ENDIF.
+
+    PERFORM f_get_reason_text
+      TABLES gt_reason
+      USING <fs_pay>-massn <fs_pay>-massg
+      CHANGING lv_reason_text.
+
+    PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
+      USING <fs_pay>-persg
+      CHANGING lv_tipcol.
+
+    PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.
+
+    IF lv_qtdind_num IS NOT INITIAL OR lv_qtdrea_num IS NOT INITIAL.
+      lv_avipre = '2'.
+    ELSE.
+      lv_avipre = '1'.
+    ENDIF.
+
+    IF lv_reason_text CS 'DISS'.
+      lv_temdis = 'D'.
+    ELSEIF lv_reason_text CS 'COMISS'.
+      lv_temdis = 'C'.
+    ELSE.
+      lv_temdis = 'E'.
+    ENDIF.
+
+    lv_numemp = <fs_pay>-bukrs.
+    lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
+    lv_discol = ''.
+    lv_calrcs = '0'.
+    lv_terqui = '0'.
+
+    PERFORM f_format_amount USING lv_qtdind_num CHANGING lv_qtdind.
+    PERFORM f_format_amount USING lv_qtdrea_num CHANGING lv_qtdrea.
+    PERFORM f_format_amount USING lv_qtdssl_num CHANGING lv_qtdssl.
+    PERFORM f_format_amount USING lv_qtdfca_num CHANGING lv_qtdfca.
+    PERFORM f_format_amount USING lv_qtdiac_num CHANGING lv_qtdiac.
+    PERFORM f_format_amount USING lv_qtdrac_num CHANGING lv_qtdrac.
+    PERFORM f_format_amount USING lv_salbas_num CHANGING lv_salbas.
+    PERFORM f_format_amount USING lv_salfav_num CHANGING lv_salfav.
+    PERFORM f_format_amount USING lv_sldfgt_num CHANGING lv_sldfgt.
+
+    PERFORM f_fit_field USING lv_numemp 4 CHANGING lv_numemp.
+    PERFORM f_fit_field USING lv_tipcol 1 CHANGING lv_tipcol.
+    PERFORM f_fit_field USING lv_numcad 9 CHANGING lv_numcad.
+    PERFORM f_fit_field USING lv_datpag 10 CHANGING lv_datpag.
+    PERFORM f_fit_field USING lv_qtdind 10 CHANGING lv_qtdind.
+    PERFORM f_fit_field USING lv_qtdrea 10 CHANGING lv_qtdrea.
+    PERFORM f_fit_field USING lv_qtdssl 10 CHANGING lv_qtdssl.
+    PERFORM f_fit_field USING lv_qtdfca 10 CHANGING lv_qtdfca.
+    PERFORM f_fit_field USING lv_salfav 12 CHANGING lv_salfav.
+    PERFORM f_fit_field USING lv_sldfgt 12 CHANGING lv_sldfgt.
+    PERFORM f_fit_field USING lv_discol 10 CHANGING lv_discol.
+    PERFORM f_fit_field USING lv_temdis 1 CHANGING lv_temdis.
+    PERFORM f_fit_field USING lv_salbas 12 CHANGING lv_salbas.
+    PERFORM f_fit_field USING lv_calrcs 4 CHANGING lv_calrcs.
+    PERFORM f_fit_field USING lv_avipre 1 CHANGING lv_avipre.
+    PERFORM f_fit_field USING lv_qtdiac 10 CHANGING lv_qtdiac.
+    PERFORM f_fit_field USING lv_qtdrac 10 CHANGING lv_qtdrac.
+    PERFORM f_fit_field USING lv_terqui 1 CHANGING lv_terqui.
+
+    CONCATENATE
+      lv_numemp
+      lv_tipcol
+      lv_numcad
+      lv_datpag
+      lv_qtdind
+      lv_qtdrea
+      lv_qtdssl
+      lv_qtdfca
+      lv_salfav
+      lv_sldfgt
+      lv_discol
+      lv_temdis
+      lv_salbas
+      lv_calrcs
+      lv_avipre
+      lv_qtdiac
+      lv_qtdrac
+      lv_terqui
+      INTO gv_line
+      SEPARATED BY ';'.
+
+    APPEND gv_line TO gt_file.
+
+  ENDLOOP.
+
   PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
 
   WRITE: / 'Layout 1037 gerado:', gv_filename.
+
+ENDFORM.
+
+FORM f_collect_payments
+  TABLES pt_term STRUCTURE ty_term
+         pt_pay  STRUCTURE ty_pay.
+
+  DATA: lt_rgdir TYPE STANDARD TABLE OF pc261,
+        ls_pay   TYPE ty_pay,
+        lv_pernr TYPE pernr_d,
+        lv_keydt TYPE datum.
+
+  FIELD-SYMBOLS: <fs_term>  TYPE ty_term,
+                 <fs_rgdir> TYPE pc261,
+                 <fs_pay>   TYPE ty_pay.
+
+  SORT pt_term BY pernr datdem.
+
+  LOOP AT pt_term ASSIGNING <fs_term>.
+    AT NEW pernr.
+      CLEAR lt_rgdir.
+      lv_pernr = <fs_term>-pernr.
+
+      CALL FUNCTION 'CU_READ_RGDIR'
+        EXPORTING
+          persnr          = lv_pernr
+        TABLES
+          in_rgdir        = lt_rgdir
+        EXCEPTIONS
+          no_record_found = 1
+          OTHERS          = 2.
+    ENDAT.
+
+    LOOP AT lt_rgdir ASSIGNING <fs_rgdir>
+      WHERE void  = space
+        AND srtza = 'A'.
+
+      IF <fs_rgdir>-ocrsn <> 'RESC'
+         AND <fs_rgdir>-occat <> '08'.
+        CONTINUE.
+      ENDIF.
+
+      lv_keydt = <fs_rgdir>-paydt.
+      IF lv_keydt IS INITIAL.
+        lv_keydt = <fs_rgdir>-fpend.
+      ENDIF.
+
+      IF lv_keydt < <fs_term>-datdem.
+        CONTINUE.
+      ENDIF.
+
+      CLEAR ls_pay.
+      ls_pay-pernr  = <fs_term>-pernr.
+      ls_pay-datdem = <fs_term>-datdem.
+      ls_pay-massn  = <fs_term>-massn.
+      ls_pay-massg  = <fs_term>-massg.
+      ls_pay-bukrs  = <fs_term>-bukrs.
+      ls_pay-persg  = <fs_term>-persg.
+      ls_pay-paydt  = <fs_rgdir>-paydt.
+      ls_pay-fpbeg  = <fs_rgdir>-fpbeg.
+      ls_pay-fpend  = <fs_rgdir>-fpend.
+      ls_pay-seqnr  = <fs_rgdir>-seqnr.
+      ls_pay-relid  = <fs_rgdir>-relid.
+      APPEND ls_pay TO pt_pay.
+    ENDLOOP.
+  ENDLOOP.
+
+  SORT pt_pay BY pernr datdem paydt seqnr DESCENDING.
+  DELETE ADJACENT DUPLICATES FROM pt_pay COMPARING pernr datdem paydt.
+  SORT pt_pay BY pernr datdem paydt seqnr.
+
+  DATA: lv_last_pernr TYPE pernr_d,
+        lv_last_datdem TYPE begda,
+        lv_rank TYPE i.
+
+  CLEAR: lv_last_pernr, lv_last_datdem, lv_rank.
+
+  LOOP AT pt_pay ASSIGNING <fs_pay>.
+    IF <fs_pay>-pernr <> lv_last_pernr
+       OR <fs_pay>-datdem <> lv_last_datdem.
+      lv_last_pernr = <fs_pay>-pernr.
+      lv_last_datdem = <fs_pay>-datdem.
+      lv_rank = 0.
+    ENDIF.
+    ADD 1 TO lv_rank.
+    <fs_pay>-rank = lv_rank.
+  ENDLOOP.
+
+ENDFORM.
+
+FORM f_read_payroll_result
+  USING    pv_pernr TYPE pernr_d
+           pv_seqnr TYPE pc261-seqnr
+           pv_relid TYPE pc261-relid
+  CHANGING pt_rt    TYPE STANDARD TABLE.
+
+  DATA ls_payroll_result TYPE pay99_result.
+
+  FIELD-SYMBOLS <lt_rt> TYPE STANDARD TABLE.
+
+  CLEAR pt_rt[].
+
+  CALL FUNCTION 'PYXX_READ_PAYROLL_RESULT'
+    EXPORTING
+      clusterid                    = pv_relid
+      employeenumber               = pv_pernr
+      sequencenumber               = pv_seqnr
+      read_only_international      = 'X'
+    CHANGING
+      payroll_result               = ls_payroll_result
+    EXCEPTIONS
+      illegal_isocode_or_clusterid = 1
+      error_generating_import      = 2
+      import_mismatch_error        = 3
+      subpool_dir_full             = 4
+      no_read_authority            = 5
+      no_record_found              = 6
+      versions_do_not_match        = 7
+      error_reading_archive        = 8
+      error_reading_relid          = 9
+      OTHERS                       = 10.
+
+  IF sy-subrc <> 0.
+    RETURN.
+  ENDIF.
+
+  ASSIGN ls_payroll_result-inter-rt[] TO <lt_rt>.
+  IF <lt_rt> IS ASSIGNED.
+    pt_rt[] = <lt_rt>[].
+  ENDIF.
+
+ENDFORM.
+
+FORM f_collect_rt_values
+  TABLES   pt_rt STRUCTURE pc207
+  USING    pv_datdem TYPE datum
+  CHANGING pv_qtdind TYPE p
+           pv_qtdrea TYPE p
+           pv_qtdssl TYPE p
+           pv_qtdfca TYPE p
+           pv_qtdiac TYPE p
+           pv_qtdrac TYPE p
+           pv_sldfgt TYPE p.
+
+  CLEAR:
+    pv_qtdind,
+    pv_qtdrea,
+    pv_qtdssl,
+    pv_qtdfca,
+    pv_qtdiac,
+    pv_qtdrac,
+    pv_sldfgt.
+
+  LOOP AT pt_rt ASSIGNING FIELD-SYMBOL(<fs_rt>).
+    CASE <fs_rt>-lgart.
+      WHEN '/370'.
+        pv_qtdind = pv_qtdind + <fs_rt>-anzhl.
+      WHEN '/374'.
+        pv_qtdrea = pv_qtdrea + <fs_rt>-anzhl.
+      WHEN '/371'.
+        pv_qtdfca = pv_qtdfca + <fs_rt>-anzhl.
+    ENDCASE.
+  ENDLOOP.
+
+  IF pv_qtdssl IS INITIAL
+     AND pv_datdem IS NOT INITIAL.
+    pv_qtdssl = pv_datdem+6(2).
+  ENDIF.
+
+ENDFORM.
+
+FORM f_get_salary_base
+  TABLES   pt_0008 STRUCTURE ty_0008
+  USING    pv_pernr TYPE pernr_d
+           pv_keydt TYPE datum
+  CHANGING pv_salbas TYPE p.
+
+  CLEAR pv_salbas.
+
+  LOOP AT pt_0008 ASSIGNING FIELD-SYMBOL(<fs_0008>)
+    WHERE pernr = pv_pernr.
+    IF <fs_0008>-begda <= pv_keydt
+       AND <fs_0008>-endda >= pv_keydt.
+      pv_salbas = <fs_0008>-bet01.
+      EXIT.
+    ENDIF.
+  ENDLOOP.
+
+ENDFORM.
+
+FORM f_get_contract_end
+  TABLES   pt_0016 STRUCTURE ty_0016
+  USING    pv_pernr TYPE pernr_d
+           pv_keydt TYPE datum
+  CHANGING pv_ctedt TYPE datum.
+
+  CLEAR pv_ctedt.
+
+  LOOP AT pt_0016 ASSIGNING FIELD-SYMBOL(<fs_0016>)
+    WHERE pernr = pv_pernr.
+    IF <fs_0016>-begda <= pv_keydt
+       AND <fs_0016>-endda >= pv_keydt.
+      pv_ctedt = <fs_0016>-ctedt.
+      EXIT.
+    ENDIF.
+  ENDLOOP.
+
+ENDFORM.
+
+FORM f_get_reason_text
+  TABLES   pt_reason STRUCTURE ty_reason
+  USING    pv_massn TYPE massn
+           pv_massg TYPE massg
+  CHANGING pv_text  TYPE string.
+
+  CLEAR pv_text.
+
+  READ TABLE pt_reason ASSIGNING FIELD-SYMBOL(<fs_reason>)
+    WITH KEY massn = pv_massn
+             massg = pv_massg
+    BINARY SEARCH.
+  IF sy-subrc = 0.
+    pv_text = <fs_reason>-mgtxt.
+  ENDIF.
+
+ENDFORM.
+
+FORM f_format_date
+  USING    pv_date TYPE datum
+  CHANGING pv_text TYPE string.
+
+  CLEAR pv_text.
+
+  IF pv_date IS INITIAL
+     OR pv_date = '00000000'.
+    RETURN.
+  ENDIF.
+
+  PERFORM f_conv_date IN PROGRAM zhr_export_senior
+    USING pv_date
+    CHANGING pv_text.
+
+ENDFORM.
+
+FORM f_format_amount
+  USING    pv_value TYPE any
+  CHANGING pv_text  TYPE string.
+
+  DATA lv_value TYPE p LENGTH 15 DECIMALS 2.
+
+  CLEAR pv_text.
+  lv_value = pv_value.
+
+  WRITE lv_value TO pv_text DECIMALS 2 NO-GROUPING.
+  CONDENSE pv_text NO-GAPS.
+  REPLACE ALL OCCURRENCES OF '.' IN pv_text WITH ','.
+
+ENDFORM.
+
+FORM f_fit_field
+  USING    pv_value  TYPE any
+           pv_length TYPE i
+  CHANGING pv_text   TYPE string.
+
+  pv_text = |{ pv_value }|.
+  REPLACE ALL OCCURRENCES OF ';' IN pv_text WITH ','.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN pv_text WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN pv_text WITH space.
+  CONDENSE pv_text.
+
+  IF pv_length > 0
+     AND strlen( pv_text ) > pv_length.
+    pv_text = pv_text(pv_length).
+  ENDIF.
 
 ENDFORM.
 
