@@ -10,32 +10,53 @@ TYPES: BEGIN OF gy_file,
 
 DATA: gt_file TYPE TABLE OF gy_file.
 
-*-Tela de Seleção -----------------------------------------------------
+*-Tela de Sele??o -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF BLOCK blc1 WITH FRAME TITLE text-001.
-PARAMETERS: p_serv TYPE sapb-sappfad DEFAULT '/usr/sap/tmp/'.
+PARAMETERS: p_locl  TYPE string LOWER CASE,
+            p_serv TYPE sapb-sappfad DEFAULT '/usr/sap/tmp/'.
 SELECTION-SCREEN END OF BLOCK blc1.
 
 *-Evento antes do processamento ---------------------------------------
 AT SELECTION-SCREEN OUTPUT.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
+  PERFORM f_selecionar_arquivo.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
   PERFORM zf_search_help_directory.
 
 START-OF-SELECTION.
 
-  IF p_serv IS INITIAL.
-    MESSAGE 'Informe o caminho de destino do arquivo no servidor.' TYPE 'E'.
+  IF p_locl IS INITIAL AND p_serv IS INITIAL.
+    MESSAGE 'Informe o destino local ou no servidor.' TYPE 'E'.
   ENDIF.
 
   PERFORM f_normalizar_caminhos.
   PERFORM f_exportar_dados.
 
-*&---------------------------------------------------------------------*
-*&      Form  ZF_SEARCH_HELP_DIRECTORY
-*&---------------------------------------------------------------------*
+FORM f_selecionar_arquivo.
+
+  DATA lv_folder TYPE string.
+
+  CALL METHOD cl_gui_frontend_services=>directory_browse
+    CHANGING
+      selected_folder      = lv_folder
+    EXCEPTIONS
+      cntl_error           = 1
+      error_no_gui         = 2
+      not_supported_by_gui = 3
+      OTHERS               = 4.
+
+  IF sy-subrc = 0 AND lv_folder IS NOT INITIAL.
+    p_locl = lv_folder.
+  ENDIF.
+
+ENDFORM.
+
 FORM zf_search_help_directory.
 
   DATA lv_serverfile TYPE string.
+
   CALL FUNCTION '/SAPDMC/LSM_F4_SERVER_FILE'
     IMPORTING
       serverfile       = lv_serverfile
@@ -44,21 +65,30 @@ FORM zf_search_help_directory.
       OTHERS           = 2.
 
   IF NOT lv_serverfile IS INITIAL.
-    p_serv = |{ lv_serverfile }/|.
+    p_serv = lv_serverfile.
   ENDIF.
 
 ENDFORM.
-*&---------------------------------------------------------------------*
-*&      Form  F_NORMALIZAR_CAMINHOS
-*&---------------------------------------------------------------------*
+
 FORM f_normalizar_caminhos.
 
   DATA lv_last TYPE c LENGTH 1.
   DATA(vl_strlen) = strlen( p_serv ) - 1.
 
-  IF p_serv IS NOT INITIAL.
+  IF p_locl IS NOT INITIAL.
+    vl_strlen = strlen( p_locl ) - 1.
+    IF vl_strlen >= 0.
+      lv_last = p_locl+vl_strlen(1).
+      IF lv_last <> '/' AND lv_last <> '\'.
+        CONCATENATE p_locl '\' INTO p_locl.
+      ENDIF.
+    ENDIF.
+  ENDIF.
+
+  vl_strlen = strlen( p_serv ) - 1.
+  IF p_serv IS NOT INITIAL AND vl_strlen >= 0.
     lv_last = p_serv+vl_strlen(1).
-    IF lv_last <> '/'.
+    IF lv_last <> '/' AND lv_last <> '\'.
       CONCATENATE p_serv '/' INTO p_serv.
     ENDIF.
   ENDIF.
@@ -79,13 +109,13 @@ FORM f_exportar_dados.
 
   DATA: lv_erro TYPE flag.
 
-  lv_filename = p_serv && sy-datum && '_SENIOR_1051.csv'.
-  OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
-  IF sy-subrc <> 0.
-    MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
+  IF p_serv IS NOT INITIAL.
+    lv_filename = p_serv && sy-datum && '_SENIOR_1051.csv'.
+  ELSE.
+    lv_filename = p_locl && sy-datum && '_SENIOR_1051.csv'.
   ENDIF.
-
-   " não tem nada
+  
+   " n?o tem nada
 *  LOOP AT lt_dados ASSIGNING FIELD-SYMBOL(<lf_dados>).
 *    PERFORM zf_process_registration USING <lf_dados>.
 *  ENDLOOP.
@@ -113,17 +143,39 @@ FORM f_exportar_dados.
   ENDIF.
   INSERT lv_header INTO lt_conv INDEX 1.
 
-  LOOP AT lt_conv INTO DATA(ls_conv).
-    TRANSFER ls_conv TO lv_filename.
-    IF sy-subrc NE 0.
-      lv_erro = abap_true. EXIT.
+  IF p_serv IS NOT INITIAL.
+    OPEN DATASET lv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    IF sy-subrc <> 0.
+      MESSAGE |Erro abrindo arquivo { lv_filename }| TYPE 'E'.
     ENDIF.
-  ENDLOOP.
-  CLOSE DATASET lv_filename.
 
-  IF lv_erro IS NOT INITIAL.
-    MESSAGE 'Erro ao gerar arquivo' TYPE 'E'.
+    LOOP AT lt_conv INTO DATA(ls_conv).
+      TRANSFER ls_conv TO lv_filename.
+      IF sy-subrc NE 0.
+        lv_erro = abap_true. EXIT.
+      ENDIF.
+    ENDLOOP.
+    CLOSE DATASET lv_filename.
+
+    IF lv_erro IS NOT INITIAL.
+      MESSAGE 'Erro ao gerar arquivo' TYPE 'E'.
+    ELSE.
+      WRITE: / 'Arquivo gerado com sucesso:', lv_filename.
+    ENDIF.
   ELSE.
+    CALL FUNCTION 'GUI_DOWNLOAD'
+      EXPORTING
+        filename = lv_filename
+        filetype = 'ASC'
+      TABLES
+        data_tab = lt_conv
+      EXCEPTIONS
+        OTHERS   = 1.
+
+    IF sy-subrc <> 0.
+      MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
+    ENDIF.
+
     WRITE: / 'Arquivo gerado com sucesso:', lv_filename.
   ENDIF.
 
@@ -135,17 +187,17 @@ FORM zf_process_registration USING us_dados TYPE any.
 
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
-  " Código do Horário
+  " C?digo do Hor?rio
 *  ASSIGN COMPONENT ' ' OF STRUCTURE us_dados TO FIELD-SYMBOL(<lf_value>).
 *<lf_file>-CODHOR = <lf_value>.
 
-  " Sequência da Marcação
+  " Sequ?ncia da Marca??o
 *<lf_file>-SEQMAR
 
-  " Uso da Marcação
+  " Uso da Marca??o
 *<lf_file>-USOBAT
 
-  " Hora da Marcação
+  " Hora da Marca??o
 *<lf_file>-HORBAT
 
 ENDFORM.

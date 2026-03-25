@@ -1,9 +1,13 @@
 REPORT zhr_senior_exp_1025.
 
-PARAMETERS: p_dir TYPE string LOWER CASE.
+PARAMETERS: p_locl TYPE string LOWER CASE,
+            p_serv TYPE string LOWER CASE.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_dir.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
+  PERFORM zf_search_help_directory.
 
 START-OF-SELECTION.
 
@@ -29,7 +33,7 @@ FORM f_exportar_dados.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATALT;DATTER;PERINS;PERPER;FATTPO;APOESP'.
 
 *---------------------------------------------------------------------*
-* Seleção (PA0398 + PA0001)
+* Sele??o (PA0398 + PA0001)
 *---------------------------------------------------------------------*
 
   SELECT
@@ -78,7 +82,7 @@ FORM f_exportar_dados.
   LOOP AT gt_hist ASSIGNING FIELD-SYMBOL(<fs_hist>).
 
 *---------------------------------------------------------------------*
-* MUDANÇA REAL
+* MUDAN?A REAL
 *---------------------------------------------------------------------*
 
     AT NEW pernr.
@@ -103,7 +107,7 @@ FORM f_exportar_dados.
     ENDIF.
 
 *---------------------------------------------------------------------*
-* Conversões
+* Convers?es
 *---------------------------------------------------------------------*
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
@@ -157,7 +161,7 @@ FORM f_selecionar_arquivo.
       OTHERS               = 4.
 
   IF sy-subrc = 0 AND lv_folder IS NOT INITIAL.
-    p_dir = lv_folder.
+    p_locl = lv_folder.
   ENDIF.
 
 ENDFORM.
@@ -167,12 +171,41 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
 
   DATA:
     lv_folder   TYPE string,
-    lv_fullpath TYPE string.
+    lv_server   TYPE string,
+    lv_fullpath TYPE string,
+    lv_line     TYPE string.
   DATA:
     lv_last TYPE c LENGTH 1,
     lv_len  TYPE i.
 
-  lv_folder = p_dir.
+  lv_server = p_serv.
+
+  IF lv_server IS NOT INITIAL.
+    lv_len = strlen( lv_server ) - 1.
+    IF lv_len >= 0.
+      lv_last = lv_server+lv_len(1).
+      IF lv_last <> '\' AND lv_last <> '/'.
+        CONCATENATE lv_server '/' INTO lv_server.
+      ENDIF.
+    ENDIF.
+
+    CONCATENATE lv_server pv_filename INTO lv_fullpath.
+
+    OPEN DATASET lv_fullpath FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
+    IF sy-subrc <> 0.
+      MESSAGE 'Erro ao salvar arquivo no servidor.' TYPE 'E'.
+    ENDIF.
+
+    LOOP AT pt_file INTO lv_line.
+      TRANSFER lv_line TO lv_fullpath.
+    ENDLOOP.
+
+    CLOSE DATASET lv_fullpath.
+    p_serv = lv_server.
+    RETURN.
+  ENDIF.
+
+  lv_folder = p_locl.
 
   IF lv_folder IS INITIAL.
     CALL METHOD cl_gui_frontend_services=>directory_browse
@@ -212,6 +245,6 @@ FORM f_salvar_arquivo USING pv_filename TYPE string
     MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
   ENDIF.
 
-  p_dir = lv_folder.
+  p_locl = lv_folder.
 
 ENDFORM.
