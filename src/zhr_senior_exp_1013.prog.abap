@@ -1,31 +1,13 @@
 REPORT zhr_export_senior_1013.
 
-PARAMETERS:
-  p_serv TYPE sapb-sappfad DEFAULT '/tmp/'.
+PARAMETERS: p_file TYPE string LOWER CASE.
 
-START-OF-SELECTION.
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  PERFORM f_selecionar_arquivo.
 
-  IF p_serv IS INITIAL.
-    MESSAGE 'Informe o caminho de destino do arquivo no servidor.' TYPE 'E'.
-  ENDIF.
-
-  PERFORM f_normalizar_caminhos.
-  PERFORM f_exportar_dados.
+START-OF-SELECTION.  PERFORM f_exportar_dados.
 
 *---------------------------------------------------------------------*
-FORM f_normalizar_caminhos.
-
-  DATA lv_last TYPE c LENGTH 1.
-  DATA(vl_strlen) = strlen( p_serv ) - 1.
-
-  IF p_serv IS NOT INITIAL.
-    lv_last = p_serv+vl_strlen(1).
-    IF lv_last <> '/'.
-      CONCATENATE p_serv '/' INTO p_serv.
-    ENDIF.
-  ENDIF.
-
-ENDFORM.
 
 *---------------------------------------------------------------------*
 FORM f_exportar_dados.
@@ -33,13 +15,14 @@ FORM f_exportar_dados.
   DATA:
     gv_filename TYPE string,
     gv_header   TYPE string,
-    gv_line     TYPE string.
+    gv_line     TYPE string,
+        gt_file     TYPE STANDARD TABLE OF string.
 
 *---------------------------------------------------------------------*
 * Arquivo
 *---------------------------------------------------------------------*
 
-  gv_filename = p_serv && sy-datum && '_SENIOR_1013.csv'.
+  gv_filename = sy-datum && '_SENIOR_1013.csv'.
 
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;FICREG;CODPAI;CODEST;CODCID;CODBAI;ENDCEP;TIPLGR;'
            && 'ENDRUA;ENDNUM;ENDCPL;PAINAS;ESTNAS;CCINAS;NUMCID;EMICID;CIDEMI;ESTCID;DEXCID;'
@@ -48,7 +31,7 @@ FORM f_exportar_dados.
            && 'DDITEL;DDDTEL;NUMTEL;NMDDI2;NMDDD2;NMTEL2;NOMSOC;PRICNH;DATCNH;CARSUS'.
 
 *---------------------------------------------------------------------*
-* Seleção base
+* SeleÃ§Ã£o base
 *---------------------------------------------------------------------*
 
   SELECT
@@ -68,11 +51,11 @@ FORM f_exportar_dados.
     AND p1~endda >= @sy-datum.
 
   IF sy-subrc <> 0.
-    MESSAGE 'Nenhum dado encontrado na seleção base.' TYPE 'E'.
+    MESSAGE 'Nenhum dado encontrado na seleÃ§Ã£o base.' TYPE 'E'.
   ENDIF.
 
 *---------------------------------------------------------------------*
-* Endereço / Telefone
+* EndereÃ§o / Telefone
 *---------------------------------------------------------------------*
 
   SELECT
@@ -122,7 +105,7 @@ FORM f_exportar_dados.
   WHERE subty = '0002'.
 
 *---------------------------------------------------------------------*
-* Título de Eleitor
+* TÃ­tulo de Eleitor
 *---------------------------------------------------------------------*
 
   SELECT
@@ -174,7 +157,7 @@ FORM f_exportar_dados.
   WHERE subty = '0004'.
 
 *---------------------------------------------------------------------*
-* Estrangeiro / Registro contrato / prorrogações
+* Estrangeiro / Registro contrato / prorrogaÃ§Ãµes
 *---------------------------------------------------------------------*
 
   SELECT
@@ -189,13 +172,8 @@ FORM f_exportar_dados.
 * Abrir arquivo
 *---------------------------------------------------------------------*
 
-  OPEN DATASET gv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT.
-
-  IF sy-subrc <> 0.
-    MESSAGE 'Erro ao abrir o arquivo.' TYPE 'E'.
-  ENDIF.
-
-  TRANSFER gv_header TO gv_filename.
+  
+  APPEND gv_header TO gt_file.
 
 *---------------------------------------------------------------------*
 * Loop principal
@@ -294,7 +272,7 @@ FORM f_exportar_dados.
       CHANGING lv_tipcol.
 
 *---------------------------------------------------------------------*
-* Endereço / Telefone
+* EndereÃ§o / Telefone
 *---------------------------------------------------------------------*
 
     READ TABLE gt_0006 ASSIGNING FIELD-SYMBOL(<fs_0006>)
@@ -353,7 +331,7 @@ FORM f_exportar_dados.
     ENDIF.
 
 *---------------------------------------------------------------------*
-* Título eleitor
+* TÃ­tulo eleitor
 *---------------------------------------------------------------------*
 
     READ TABLE gt_0465_0005 ASSIGNING FIELD-SYMBOL(<fs_ele>)
@@ -507,11 +485,11 @@ FORM f_exportar_dados.
       lv_datcnh     && ';' && " DATCNH
       lv_carsus.                " CARSUS
 
-    TRANSFER gv_line TO gv_filename.
+    APPEND gv_line TO gt_file.
 
   ENDLOOP.
 
-  CLOSE DATASET gv_filename.
+  PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
 
   WRITE: / 'Arquivo gerado com sucesso:', gv_filename.
 
@@ -550,5 +528,78 @@ FORM f_split_phone
   ELSE.
     p_num = lv_phone.
   ENDIF.
+
+ENDFORM.
+
+FORM f_selecionar_arquivo.
+
+  DATA:
+    lv_filename TYPE string,
+    lv_path     TYPE string,
+    lv_fullpath TYPE string.
+
+  CALL METHOD cl_gui_frontend_services=>file_save_dialog
+    EXPORTING
+      default_extension = 'csv'
+    CHANGING
+      filename          = lv_filename
+      path              = lv_path
+      fullpath          = lv_fullpath
+    EXCEPTIONS
+      cntl_error           = 1
+      error_no_gui         = 2
+      not_supported_by_gui = 3
+      OTHERS               = 4.
+
+  IF sy-subrc = 0 AND lv_fullpath IS NOT INITIAL.
+    p_file = lv_fullpath.
+  ENDIF.
+
+ENDFORM.
+
+FORM f_salvar_arquivo USING pv_filename TYPE string
+                     CHANGING pt_file TYPE STANDARD TABLE.
+
+  DATA:
+    lv_filename TYPE string,
+    lv_path     TYPE string,
+    lv_fullpath TYPE string.
+
+  lv_fullpath = p_file.
+
+  IF lv_fullpath IS INITIAL.
+    CALL METHOD cl_gui_frontend_services=>file_save_dialog
+      EXPORTING
+        default_extension = 'csv'
+        default_file_name = pv_filename
+      CHANGING
+        filename          = lv_filename
+        path              = lv_path
+        fullpath          = lv_fullpath
+      EXCEPTIONS
+        cntl_error           = 1
+        error_no_gui         = 2
+        not_supported_by_gui = 3
+        OTHERS               = 4.
+
+    IF sy-subrc <> 0 OR lv_fullpath IS INITIAL.
+      MESSAGE 'Selecao do arquivo cancelada.' TYPE 'E'.
+    ENDIF.
+  ENDIF.
+
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+      filename = lv_fullpath
+      filetype = 'ASC'
+    TABLES
+      data_tab = pt_file
+    EXCEPTIONS
+      OTHERS   = 1.
+
+  IF sy-subrc <> 0.
+    MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
+  ENDIF.
+
+  p_file = lv_fullpath.
 
 ENDFORM.

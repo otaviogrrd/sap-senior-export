@@ -1,12 +1,15 @@
 REPORT ZHR_SENIOR_EXP_1002.
 
-PARAMETERS: p_path TYPE string OBLIGATORY DEFAULT '/tmp',
-            p_file TYPE string LOWER CASE,
+PARAMETERS: p_file TYPE string LOWER CASE,
             p_head AS CHECKBOX DEFAULT 'X'.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_file.
+  PERFORM f_selecionar_arquivo.
 
 DATA: gv_filename TYPE string,
       gv_header   TYPE string,
       gv_line     TYPE string,
+      gt_file     TYPE STANDARD TABLE OF string,
       gv_count    TYPE i.
 
 START-OF-SELECTION.
@@ -19,18 +22,12 @@ START-OF-SELECTION.
 FORM build_filename.
   DATA lv_date TYPE char8.
   DATA lv_time TYPE char6.
-  DATA lv_leng TYPE i.
   lv_date = sy-datum.
   lv_time = sy-uzeit.
-  gv_filename = p_path.
-  lv_leng = strlen( gv_filename ) - 1.
-  IF gv_filename+lv_leng(1) <> '/'.
-    CONCATENATE gv_filename '/' INTO gv_filename.
-  ENDIF.
   IF p_file IS INITIAL.
-    CONCATENATE gv_filename 'SENIOR_1002_' lv_date '_' lv_time '.csv' INTO gv_filename.
+    CONCATENATE 'SENIOR_1002_' lv_date '_' lv_time '.csv' INTO gv_filename.
   ELSE.
-    CONCATENATE gv_filename p_file INTO gv_filename.
+    gv_filename = p_file.
   ENDIF.
 ENDFORM.
 
@@ -39,21 +36,90 @@ FORM build_header.
 ENDFORM.
 
 FORM get_data.
-  OPEN DATASET gv_filename FOR OUTPUT IN TEXT MODE ENCODING DEFAULT WITH SMART LINEFEED.
-  IF sy-subrc <> 0.
-    MESSAGE |Erro abrindo arquivo { gv_filename }| TYPE 'E'.
-  ENDIF.
-
+  
   IF p_head = 'X'.
-    TRANSFER gv_header TO gv_filename.
+    APPEND gv_header TO gt_file.
   ENDIF.
 
   " TODO: implementar SELECT e mapeamento do layout
   " Exemplo:
   " CLEAR gv_line.
   " CONCATENATE 'VAL1' 'VAL2' INTO gv_line SEPARATED BY ';'.
-  " TRANSFER gv_line TO gv_filename.
+  " APPEND gv_line TO gt_file.
   " ADD 1 TO gv_count.
 
-  CLOSE DATASET gv_filename.
+  PERFORM f_salvar_arquivo USING gv_filename CHANGING gt_file.
+ENDFORM.
+
+FORM f_selecionar_arquivo.
+
+  DATA:
+    lv_filename TYPE string,
+    lv_path     TYPE string,
+    lv_fullpath TYPE string.
+
+  CALL METHOD cl_gui_frontend_services=>file_save_dialog
+    EXPORTING
+      default_extension = 'csv'
+    CHANGING
+      filename          = lv_filename
+      path              = lv_path
+      fullpath          = lv_fullpath
+    EXCEPTIONS
+      cntl_error           = 1
+      error_no_gui         = 2
+      not_supported_by_gui = 3
+      OTHERS               = 4.
+
+  IF sy-subrc = 0 AND lv_fullpath IS NOT INITIAL.
+    p_file = lv_fullpath.
+  ENDIF.
+
+ENDFORM.
+
+FORM f_salvar_arquivo USING pv_filename TYPE string
+                     CHANGING pt_file TYPE STANDARD TABLE.
+
+  DATA:
+    lv_filename TYPE string,
+    lv_path     TYPE string,
+    lv_fullpath TYPE string.
+
+  lv_fullpath = p_file.
+
+  IF lv_fullpath IS INITIAL.
+    CALL METHOD cl_gui_frontend_services=>file_save_dialog
+      EXPORTING
+        default_extension = 'csv'
+        default_file_name = pv_filename
+      CHANGING
+        filename          = lv_filename
+        path              = lv_path
+        fullpath          = lv_fullpath
+      EXCEPTIONS
+        cntl_error           = 1
+        error_no_gui         = 2
+        not_supported_by_gui = 3
+        OTHERS               = 4.
+
+    IF sy-subrc <> 0 OR lv_fullpath IS INITIAL.
+      MESSAGE 'Selecao do arquivo cancelada.' TYPE 'E'.
+    ENDIF.
+  ENDIF.
+
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+      filename = lv_fullpath
+      filetype = 'ASC'
+    TABLES
+      data_tab = pt_file
+    EXCEPTIONS
+      OTHERS   = 1.
+
+  IF sy-subrc <> 0.
+    MESSAGE 'Erro ao salvar arquivo local.' TYPE 'E'.
+  ENDIF.
+
+  p_file = lv_fullpath.
+
 ENDFORM.
