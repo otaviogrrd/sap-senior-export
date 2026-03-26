@@ -43,7 +43,8 @@ FORM f_exportar_dados.
     mgtxt,   " Descricao
     massn    " Tipo movimentacao
   INTO TABLE @DATA(gt_motivos)
-  FROM t530t.
+  FROM t530t
+  WHERE SPRSL = 'P'.
 
 *---------------------------------------------------------------------*
 * Abrir arquivo

@@ -114,7 +114,8 @@ FORM f_export.
   ENDIF.
 
   SORT gt_source BY adrnr nombai cepbai.
-  DELETE ADJACENT DUPLICATES FROM gt_source COMPARING adrnr nombai cepbai.
+  DELETE ADJACENT DUPLICATES FROM gt_source COMPARING adrnr nombai
+cepbai.
 
   IF gt_source IS NOT INITIAL.
     SELECT addrnumber,
@@ -185,10 +186,12 @@ FORM f_export.
   ENDLOOP.
 
   SORT gt_bairro BY codcid nombai cepbai.
-  DELETE ADJACENT DUPLICATES FROM gt_bairro COMPARING codcid nombai cepbai.
+  DELETE ADJACENT DUPLICATES FROM gt_bairro COMPARING codcid nombai
+cepbai.
 
   IF gt_bairro IS INITIAL.
-    MESSAGE 'Nenhum bairro com c??digo IBGE v??lido foi encontrado.' TYPE 'E'.
+    MESSAGE 'Nenhum bairro com codigo IBGE valido foi encontrado.'
+TYPE 'E'.
   ENDIF.
 
   CLEAR: lv_city, lv_seq.
@@ -203,7 +206,8 @@ FORM f_export.
     ADD 1 TO lv_seq.
 
     IF lv_seq > 9999.
-      MESSAGE 'Quantidade de bairros excede o limite por cidade no layout 1011.' TYPE 'E'.
+MESSAGE 'Qtd de bairros excede limite por cidade no layout.'
+ TYPE 'E'.
     ENDIF.
 
     lv_codbai = lv_seq.
@@ -219,7 +223,8 @@ FORM f_export.
 
   ENDLOOP.
 
-  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING
+gv_filename CHANGING gt_file p_locl p_serv.
 
   WRITE: / 'Layout 1011 gerado:', gv_filename.
 
@@ -232,9 +237,12 @@ FORM f_fit_field USING    p_value TYPE string
   p_out = p_value.
 
   REPLACE ALL OCCURRENCES OF ';' IN p_out WITH ','.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN p_out WITH space.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN p_out WITH space.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>horizontal_tab IN p_out WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN p_out WITH
+space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN p_out
+WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>horizontal_tab IN
+p_out WITH space.
   CONDENSE p_out.
 
   IF p_len > 0 AND strlen( p_out ) > p_len.

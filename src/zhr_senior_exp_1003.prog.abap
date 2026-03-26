@@ -92,12 +92,11 @@ FORM f_export.
          adrc~city1,
          adrc~country
     INTO TABLE @gt_oem
-    FROM lfa1 AS lfa1
+   FROM lfa1 AS lfa1
     LEFT JOIN adrc AS adrc
       ON adrc~addrnumber = lfa1~adrnr
      AND adrc~nation     = @space
-   WHERE lfa1~loevm = @space
-     AND ( lfa1~stcd1 <> @space OR lfa1~stcd2 <> @space ).
+   WHERE lfa1~loevm = @space.
 
   IF sy-subrc <> 0 OR gt_oem IS INITIAL.
     MESSAGE 'Nenhuma outra empresa encontrada em LFA1.' TYPE 'E'.
@@ -233,6 +232,10 @@ FORM f_export.
     APPEND gv_line TO gt_file.
 
   ENDLOOP.
+
+  IF lines( gt_file ) <= 1.
+    MESSAGE 'Nenhuma outra empresa valida encontrada em LFA1.' TYPE 'E'.
+  ENDIF.
 
   PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
 

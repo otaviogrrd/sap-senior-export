@@ -73,12 +73,15 @@ FORM get_data.
 
   APPEND gv_header TO gt_file.
 
-  LOOP AT lt_notas INTO DATA(lv_nota).
+  DATA lv_nota TYPE string.
+
+  LOOP AT lt_notas INTO lv_nota.
 
     ADD 1 TO gv_count.
 
     IF gv_count > 999.
-      MESSAGE 'Quantidade de tipos de anotacao excede o limite do layout 1005.' TYPE 'E'.
+  MESSAGE 'Qtd de tipos de anot. excede limite do layout.' 
+  TYPE 'E'.
     ENDIF.
 
     CLEAR: lv_codnot, lv_desnot, lv_mosfic, lv_basleg, lv_tpesoc,
@@ -113,7 +116,8 @@ FORM get_data.
 
   ENDLOOP.
 
-  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING
+gv_filename CHANGING gt_file p_locl p_serv.
 ENDFORM.
 
 FORM f_fit_field USING    p_value  TYPE any
@@ -123,9 +127,12 @@ FORM f_fit_field USING    p_value  TYPE any
   p_out = p_value.
 
   REPLACE ALL OCCURRENCES OF ';' IN p_out WITH ','.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN p_out WITH space.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN p_out WITH space.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>horizontal_tab IN p_out WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN p_out WITH
+space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN p_out
+WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>horizontal_tab IN
+p_out WITH space.
   CONDENSE p_out.
 
   IF p_length > 0 AND strlen( p_out ) > p_length.

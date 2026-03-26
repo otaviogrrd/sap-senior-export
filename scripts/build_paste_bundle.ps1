@@ -1,7 +1,6 @@
 param(
   [string]$SourceDir = (Join-Path $PSScriptRoot '..\\src'),
-  [string]$OutputFile = (Join-Path $PSScriptRoot '..\\dist\\zhr_export_senior_bundle.txt'),
-  [switch]$IncludeMainProgram
+  [string]$OutputFile = (Join-Path $PSScriptRoot '..\\dist\\zhr_export_senior_bundle.txt')
 )
 
 $ErrorActionPreference = 'Stop'
@@ -16,11 +15,9 @@ if (-not (Test-Path $outputDir)) {
 $files = Get-ChildItem -Path $sourcePath -Filter 'zhr_senior_exp_*.prog.abap' |
   Sort-Object Name
 
-if ($IncludeMainProgram) {
-  $mainProgram = Join-Path $sourcePath 'zhr_export_senior.prog.abap'
-  if (Test-Path $mainProgram) {
-    $files += Get-Item $mainProgram
-  }
+$mainProgram = Join-Path $sourcePath 'zhr_export_senior.prog.abap'
+if (Test-Path $mainProgram) {
+  $files = @(Get-Item $mainProgram) + @($files)
 }
 
 if (-not $files) {

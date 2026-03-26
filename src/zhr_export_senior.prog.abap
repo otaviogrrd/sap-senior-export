@@ -389,12 +389,16 @@ FORM f_remove_mask
   USING    p_value
   CHANGING p_clean.
 
-  p_clean = p_value.
+  DATA lv_clean TYPE string.
 
-  REPLACE ALL OCCURRENCES OF '.' IN p_clean WITH ''.
-  REPLACE ALL OCCURRENCES OF '/' IN p_clean WITH ''.
-  REPLACE ALL OCCURRENCES OF '-' IN p_clean WITH ''.
-  REPLACE ALL OCCURRENCES OF ' ' IN p_clean WITH ''.
+  lv_clean = p_value.
+
+  REPLACE ALL OCCURRENCES OF '.' IN lv_clean WITH ''.
+  REPLACE ALL OCCURRENCES OF '/' IN lv_clean WITH ''.
+  REPLACE ALL OCCURRENCES OF '-' IN lv_clean WITH ''.
+  CONDENSE lv_clean NO-GAPS.
+
+  p_clean = lv_clean.
 
 ENDFORM.
 
