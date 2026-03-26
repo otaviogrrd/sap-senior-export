@@ -67,7 +67,7 @@ FORM f_map_numemp
 ENDFORM.
 
 ************************************************************************
-* Convers??o TIPCOL (LTipCol)
+* Conversao TIPCOL (LTipCol)
 ************************************************************************
 FORM f_conv_tipcol
   USING    p_persg
@@ -83,13 +83,13 @@ FORM f_conv_tipcol
     WHEN '4'. " Aprendiz
       p_tipcol = '1'.
 
-    WHEN '5'. " Estagi??rio
+    WHEN '5'. " Estagiario
       p_tipcol = '1'.
 
     WHEN '6'. " Prestador
       p_tipcol = '2'.
 
-    WHEN '7'. " Pr??-labore
+    WHEN '7'. " Pro-labore
       p_tipcol = '3'.
 
     WHEN OTHERS.
@@ -100,7 +100,7 @@ FORM f_conv_tipcol
 ENDFORM.
 
 ************************************************************************
-* Convers??o Sexo (LTipSex)
+* Conversao Sexo (LTipSex)
 ************************************************************************
 FORM f_conv_tipsex
   USING    p_gesch
@@ -121,7 +121,7 @@ FORM f_conv_tipsex
 ENDFORM.
 
 ************************************************************************
-* Convers??o Estado Civil (LEstCiv)
+* Conversao Estado Civil (LEstCiv)
 ************************************************************************
 FORM f_conv_estciv
   USING    p_famst
@@ -147,7 +147,7 @@ FORM f_conv_estciv
 ENDFORM.
 
 ************************************************************************
-* Convers??o Ra??a/Cor (LRacCor)
+* Conversao Raca/Cor (LRacCor)
 ************************************************************************
 FORM f_conv_raccor
   USING    p_race
@@ -171,7 +171,7 @@ FORM f_conv_raccor
 ENDFORM.
 
 ************************************************************************
-* Convers??o Sim/N??o (LSimNao)
+* Conversao Sim/Nao (LSimNao)
 ************************************************************************
 FORM f_conv_simnao
   USING    p_flag
@@ -192,7 +192,7 @@ FORM f_conv_simnao
 ENDFORM.
 
 ************************************************************************
-* Convers??o Pagamento Sindicato (LPagSin)
+* Conversao Pagamento Sindicato (LPagSin)
 ************************************************************************
 FORM f_conv_pagsin
   USING    p_val
@@ -215,7 +215,7 @@ FORM f_conv_pagsin
 ENDFORM.
 
 ************************************************************************
-* Convers??o Modo Pagamento (LModPag)
+* Conversao Modo Pagamento (LModPag)
 ************************************************************************
 FORM f_conv_modpag
   USING    p_zlsch
@@ -240,7 +240,7 @@ FORM f_conv_modpag
 ENDFORM.
 
 ************************************************************************
-* Convers??o Tipo Aposentadoria (LTipApo)
+* Conversao Tipo Aposentadoria (LTipApo)
 ************************************************************************
 FORM f_conv_tipapo
   USING    p_tipo
@@ -264,7 +264,7 @@ FORM f_conv_tipapo
 ENDFORM.
 
 ************************************************************************
-* Convers??o Tipo Conta Banc??ria (LTpCtBa)
+* Conversao Tipo Conta Bancaria (LTpCtBa)
 ************************************************************************
 FORM f_conv_tipctba
   USING    p_type
@@ -286,7 +286,7 @@ FORM f_conv_tipctba
 ENDFORM.
 
 ************************************************************************
-* Convers??o Per??odo Pagamento (LPerPag)
+* Conversao Periodo Pagamento (LPerPag)
 ************************************************************************
 FORM f_conv_perpag
   USING    p_per
@@ -308,7 +308,7 @@ FORM f_conv_perpag
 ENDFORM.
 
 ************************************************************************
-* Convers??o Tipo Chave Pix (LTipChv)
+* Conversao Tipo Chave Pix (LTipChv)
 ************************************************************************
 FORM f_conv_tipchv
   USING    p_tipo
@@ -329,7 +329,7 @@ FORM f_conv_tipchv
 ENDFORM.
 
 ************************************************************************
-* Convers??o Estado (LEstFed)
+* Conversao Estado (LEstFed)
 ************************************************************************
 
 FORM f_conv_estfed
@@ -356,17 +356,17 @@ FORM f_conv_tipcon
 
   CASE p_empid.
 
-    WHEN '01'. " Funcion??rio
+    WHEN '01'. " Funcionario
       p_tipcon = '1'.  " Empregado
 
     WHEN '02'. " Trabalhador Rural
       p_tipcon = '3'.  " Trabalhador Rural
 
-    WHEN '03'. " Estatut??rio
-      p_tipcon = '9'.  " Agente P??blico
+    WHEN '03'. " Estatutario
+      p_tipcon = '9'.  " Agente Publico
 
-    WHEN '04'. " Estagi??rio
-      p_tipcon = '5'.  " Estagi??rio
+    WHEN '04'. " Estagiario
+      p_tipcon = '5'.  " Estagiario
 
     WHEN '05'. " Diretor
       p_tipcon = '2'.  " Diretor
@@ -374,10 +374,10 @@ FORM f_conv_tipcon
     WHEN '06'. " Conselheiro
       p_tipcon = '2'.  " Diretor
 
-    WHEN '07'. " Tempor??rio
+    WHEN '07'. " Temporario
       p_tipcon = '7'.  " Prazo Determinado
 
-    WHEN '08'. " Aut??nomo
+    WHEN '08'. " Autonomo
       p_tipcon = '11'. " Cooperado
 
     WHEN '09'. " Pensionista
@@ -444,7 +444,7 @@ FORM f_conv_mes
     p_mes_out = p_mes.
   ENDIF.
 
-  " Garantir 2 posi????es
+  " Garantir 2 posicoes
   IF strlen( p_mes_out ) = 1.
     p_mes_out = |0{ p_mes_out }|.
   ENDIF.
@@ -459,10 +459,10 @@ FORM f_conv_tpomvt
 
   CASE p_massn.
 
-    WHEN '1'. p_tpomvt = '1'. " Admiss??o
-    WHEN '2'. p_tpomvt = '2'. " Demiss??o
-    WHEN '3'. p_tpomvt = '3'. " Transfer??ncia
-    WHEN '4'. p_tpomvt = '4'. " Promo????o
+    WHEN '1'. p_tpomvt = '1'. " Admissao
+    WHEN '2'. p_tpomvt = '2'. " Demissao
+    WHEN '3'. p_tpomvt = '3'. " Transferencia
+    WHEN '4'. p_tpomvt = '4'. " Promocao
 
     WHEN OTHERS.
       p_tpomvt = '0'. " Default
@@ -480,13 +480,13 @@ FORM f_conv_mtvalt
   CASE p_massg.
 
     WHEN '04' OR '05'.
-      p_mtvalt = '1'. " Altera????o cargo
+      p_mtvalt = '1'. " Alteracao cargo
 
     WHEN '06'.
-      p_mtvalt = '2'. " Altera????o fun????o
+      p_mtvalt = '2'. " Alteracao funcao
 
     WHEN OTHERS.
-      p_mtvalt = '0'. " Default obrigat??rio
+      p_mtvalt = '0'. " Default obrigatorio
 
   ENDCASE.
 
@@ -501,10 +501,10 @@ FORM f_conv_tipmot
   CASE p_massg.
 
     WHEN '01' OR '02' OR '03'.
-      p_tipmot = 'A'. " Admiss??o
+      p_tipmot = 'A'. " Admissao
 
     WHEN '04' OR '05' OR '06'.
-      p_tipmot = 'M'. " Movimenta????o
+      p_tipmot = 'M'. " Movimentacao
 
     WHEN '07' OR '08'.
       p_tipmot = 'D'. " Desligamento
@@ -527,22 +527,22 @@ FORM f_conv_admeso
     CASE p_massg.
 
       WHEN '02'. " Emprego Adquirido
-        p_admeso = '4'. " Transfer??ncia por motivo de sucess??o, incorpora????o, cis??o ou fus??o
+        p_admeso = '4'. " Sucessao/incorporacao
 
-      WHEN '03'. " Nova Contrata????o
-        p_admeso = '1'. " Admiss??o
+      WHEN '03'. " Nova Contratacao
+        p_admeso = '1'. " Admissao
 
       WHEN '07'. " Contrato por prazo determinado
-        p_admeso = '1'. " Admiss??o
+        p_admeso = '1'. " Admissao
 
       WHEN '08'. " Primeiro empregado
-        p_admeso = '1'. " Admiss??o
+        p_admeso = '1'. " Admissao
 
-      WHEN '10'. " Nova Contrata????o (Ev.2190)
-        p_admeso = '1'. " Admiss??o
+      WHEN '10'. " Nova Contratacao (Ev.2190)
+        p_admeso = '1'. " Admissao
 
-      WHEN '11'. " Reemprego (Recontrata????o)
-        p_admeso = '1'. " Admiss??o
+      WHEN '11'. " Reemprego (Recontratacao)
+        p_admeso = '1'. " Admissao
 
       WHEN OTHERS.
         p_admeso = '1'.
@@ -559,11 +559,11 @@ FORM f_conv_indadm
 
   CLEAR p_indadm.
 
-  p_indadm = '1'. " padr??o = Normal
+  p_indadm = '1'. " padrao = Normal
 
   IF p_massn = 'ZA'
  AND p_massg = '01'.
-    p_indadm = '3'. " Decorrente de Decis??o Judicial
+    p_indadm = '3'. " Decorrente de Decisao Judicial
   ENDIF.
 
 ENDFORM.
@@ -575,28 +575,28 @@ FORM f_conv_tipadm
 
   CLEAR p_tipadm.
 
-  p_tipadm = '1'. " padr??o
+  p_tipadm = '1'. " padrao
 
   IF p_massn = 'Z1'.
 
     CASE p_massg.
 
-      WHEN '01'. " Transf Internacional-Contrata????o
-        p_tipadm = '5'.  " Incorpora????o/Fus??o/Cis??o/Outros
+      WHEN '01'. " Transf Internacional-Contratacao
+        p_tipadm = '5'.  " Incorporacao/Fusao/Cisao/Outros
 
       WHEN '02'. " Emprego Adquirido
-        p_tipadm = '5'.  " Incorpora????o/Fus??o/Cis??o/Outros
+        p_tipadm = '5'.  " Incorporacao/Fusao/Cisao/Outros
 
-      WHEN '03'. " Nova Contrata????o
+      WHEN '03'. " Nova Contratacao
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '04'. " Transfer??ncia Protegida (c/TUP)
-        p_tipadm = '3'.  " Transfer??ncia c/ ??nus
+      WHEN '04'. " Transferencia Protegida (c/TUP)
+        p_tipadm = '3'.  " Transferencia c/ onus
 
-      WHEN '05'. " Reintegra????o
-        p_tipadm = '6'.  " Reintegra????o
+      WHEN '05'. " Reintegracao
+        p_tipadm = '6'.  " Reintegracao
 
-      WHEN '06'. " Headcount Or??ado
+      WHEN '06'. " Headcount Orcado
         p_tipadm = '1'.  " Primeiro Emprego
 
       WHEN '07'. " Contrato por prazo determinado
@@ -605,13 +605,13 @@ FORM f_conv_tipadm
       WHEN '08'. " Primeiro empregado
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '09'. " Substitui????o
+      WHEN '09'. " Substituicao
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '10'. " Nova Contrata????o (Ev.2190)
+      WHEN '10'. " Nova Contratacao (Ev.2190)
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '11'. " Reemprego (Recontrata????o)
+      WHEN '11'. " Reemprego (Recontratacao)
         p_tipadm = '2'.  " Reemprego
 
       WHEN OTHERS.

@@ -8,6 +8,7 @@ TYPES: BEGIN OF ty_oem,
          stcd2      TYPE lfa1-stcd2,
          stcd3      TYPE lfa1-stcd3,
          adrnr      TYPE lfa1-adrnr,
+         taxjurcode TYPE adrc-taxjurcode,
          region     TYPE adrc-region,
          city_code  TYPE adrc-city_code,
          street     TYPE adrc-street,
@@ -82,6 +83,7 @@ FORM f_export.
          lfa1~stcd2,
          lfa1~stcd3,
          lfa1~adrnr,
+         adrc~taxjurcode,
          adrc~region,
          adrc~city_code,
          adrc~street,
@@ -98,8 +100,12 @@ FORM f_export.
      AND adrc~nation     = @space
    WHERE lfa1~loevm = @space.
 
-  IF sy-subrc <> 0 OR gt_oem IS INITIAL.
-    MESSAGE 'Nenhuma outra empresa encontrada em LFA1.' TYPE 'E'.
+  APPEND gv_header TO gt_file.
+
+  IF gt_oem IS INITIAL.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+    WRITE: / 'Layout 1003 gerado sem registros validos.'.
+    RETURN.
   ENDIF.
 
   SELECT addrnumber,
@@ -112,8 +118,6 @@ FORM f_export.
 
   SORT gt_phone BY addrnumber.
   DELETE ADJACENT DUPLICATES FROM gt_phone COMPARING addrnumber.
-
-  APPEND gv_header TO gt_file.
 
   SORT gt_oem BY lifnr.
 
@@ -162,7 +166,10 @@ FORM f_export.
     PERFORM f_sanitize_text USING lv_nomoem CHANGING lv_nomoem.
     PERFORM f_sanitize_text USING lv_apeoem CHANGING lv_apeoem.
 
-    lv_codcid = <fs_oem>-city_code.
+    lv_codcid = <fs_oem>-taxjurcode.
+    IF lv_codcid IS INITIAL.
+      lv_codcid = <fs_oem>-city_code.
+    ENDIF.
     PERFORM f_remove_mask IN PROGRAM zhr_export_senior
       USING lv_codcid
       CHANGING lv_codcid.
@@ -234,7 +241,9 @@ FORM f_export.
   ENDLOOP.
 
   IF lines( gt_file ) <= 1.
-    MESSAGE 'Nenhuma outra empresa valida encontrada em LFA1.' TYPE 'E'.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+    WRITE: / 'Layout 1003 gerado sem registros validos.'.
+    RETURN.
   ENDIF.
 
   PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.

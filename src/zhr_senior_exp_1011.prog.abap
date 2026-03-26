@@ -7,6 +7,7 @@ TYPES: BEGIN OF ty_addr_source,
        END OF ty_addr_source,
        BEGIN OF ty_adrc,
          addrnumber TYPE adrc-addrnumber,
+         taxjurcode TYPE adrc-taxjurcode,
          city_code  TYPE adrc-city_code,
          city2      TYPE adrc-city2,
          post_code1 TYPE adrc-post_code1,
@@ -119,6 +120,7 @@ cepbai.
 
   IF gt_source IS NOT INITIAL.
     SELECT addrnumber,
+           taxjurcode,
            city_code,
            city2,
            post_code1
@@ -142,7 +144,10 @@ cepbai.
       BINARY SEARCH.
 
     IF sy-subrc = 0.
-      lv_codcid = <fs_adrc>-city_code.
+      lv_codcid = <fs_adrc>-taxjurcode.
+      IF lv_codcid IS INITIAL.
+        lv_codcid = <fs_adrc>-city_code.
+      ENDIF.
       lv_nombai = <fs_adrc>-city2.
       lv_cepbai = <fs_adrc>-post_code1.
     ENDIF.
@@ -190,8 +195,10 @@ cepbai.
 cepbai.
 
   IF gt_bairro IS INITIAL.
-    MESSAGE 'Nenhum bairro com codigo IBGE valido foi encontrado.'
-TYPE 'E'.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING
+gv_filename CHANGING gt_file p_locl p_serv.
+    WRITE: / 'Layout 1011 gerado sem bairros com codigo IBGE valido.'.
+    RETURN.
   ENDIF.
 
   CLEAR: lv_city, lv_seq.

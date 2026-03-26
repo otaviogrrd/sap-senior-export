@@ -38,8 +38,37 @@ FORM zf_search_help_directory CHANGING p_serv.
 
 ENDFORM.
 
+FORM f_map_numemp
+  USING    p_bukrs TYPE bukrs
+  CHANGING p_numemp TYPE string.
+
+  CLEAR p_numemp.
+
+  CASE p_bukrs.
+    WHEN 'BR00'. p_numemp = '0001'.
+    WHEN 'BR01'. p_numemp = '0002'.
+    WHEN 'BR02'. p_numemp = '0003'.
+    WHEN 'BR03'. p_numemp = '0004'.
+    WHEN 'BR04'. p_numemp = '0005'.
+    WHEN 'BR05'. p_numemp = '0006'.
+    WHEN 'BR06'. p_numemp = '0007'.
+    WHEN 'BR07'. p_numemp = '0008'.
+    WHEN 'BR08'. p_numemp = '0009'.
+    WHEN 'BR09'. p_numemp = '0010'.
+    WHEN 'BR10'. p_numemp = '0011'.
+    WHEN 'BR11'. p_numemp = '0012'.
+    WHEN 'BR12'. p_numemp = '0013'.
+    WHEN 'BR13'. p_numemp = '0014'.
+    WHEN 'BR14'. p_numemp = '0015'.
+    WHEN 'BR15'. p_numemp = '0016'.
+    WHEN OTHERS.
+      p_numemp = p_bukrs.
+  ENDCASE.
+
+ENDFORM.
+
 ************************************************************************
-* Convers??o TIPCOL (LTipCol)
+* Conversao TIPCOL (LTipCol)
 ************************************************************************
 FORM f_conv_tipcol
   USING    p_persg
@@ -55,13 +84,13 @@ FORM f_conv_tipcol
     WHEN '4'. " Aprendiz
       p_tipcol = '1'.
 
-    WHEN '5'. " Estagi??rio
+    WHEN '5'. " Estagiario
       p_tipcol = '1'.
 
     WHEN '6'. " Prestador
       p_tipcol = '2'.
 
-    WHEN '7'. " Pr??-labore
+    WHEN '7'. " Pro-labore
       p_tipcol = '3'.
 
     WHEN OTHERS.
@@ -72,7 +101,7 @@ FORM f_conv_tipcol
 ENDFORM.
 
 ************************************************************************
-* Convers??o Sexo (LTipSex)
+* Conversao Sexo (LTipSex)
 ************************************************************************
 FORM f_conv_tipsex
   USING    p_gesch
@@ -93,7 +122,7 @@ FORM f_conv_tipsex
 ENDFORM.
 
 ************************************************************************
-* Convers??o Estado Civil (LEstCiv)
+* Conversao Estado Civil (LEstCiv)
 ************************************************************************
 FORM f_conv_estciv
   USING    p_famst
@@ -119,7 +148,7 @@ FORM f_conv_estciv
 ENDFORM.
 
 ************************************************************************
-* Convers??o Ra??a/Cor (LRacCor)
+* Conversao Raca/Cor (LRacCor)
 ************************************************************************
 FORM f_conv_raccor
   USING    p_race
@@ -143,7 +172,7 @@ FORM f_conv_raccor
 ENDFORM.
 
 ************************************************************************
-* Convers??o Sim/N??o (LSimNao)
+* Conversao Sim/Nao (LSimNao)
 ************************************************************************
 FORM f_conv_simnao
   USING    p_flag
@@ -164,7 +193,7 @@ FORM f_conv_simnao
 ENDFORM.
 
 ************************************************************************
-* Convers??o Pagamento Sindicato (LPagSin)
+* Conversao Pagamento Sindicato (LPagSin)
 ************************************************************************
 FORM f_conv_pagsin
   USING    p_val
@@ -187,7 +216,7 @@ FORM f_conv_pagsin
 ENDFORM.
 
 ************************************************************************
-* Convers??o Modo Pagamento (LModPag)
+* Conversao Modo Pagamento (LModPag)
 ************************************************************************
 FORM f_conv_modpag
   USING    p_zlsch
@@ -212,7 +241,7 @@ FORM f_conv_modpag
 ENDFORM.
 
 ************************************************************************
-* Convers??o Tipo Aposentadoria (LTipApo)
+* Conversao Tipo Aposentadoria (LTipApo)
 ************************************************************************
 FORM f_conv_tipapo
   USING    p_tipo
@@ -236,7 +265,7 @@ FORM f_conv_tipapo
 ENDFORM.
 
 ************************************************************************
-* Convers??o Tipo Conta Banc??ria (LTpCtBa)
+* Conversao Tipo Conta Bancaria (LTpCtBa)
 ************************************************************************
 FORM f_conv_tipctba
   USING    p_type
@@ -258,7 +287,7 @@ FORM f_conv_tipctba
 ENDFORM.
 
 ************************************************************************
-* Convers??o Per??odo Pagamento (LPerPag)
+* Conversao Periodo Pagamento (LPerPag)
 ************************************************************************
 FORM f_conv_perpag
   USING    p_per
@@ -280,7 +309,7 @@ FORM f_conv_perpag
 ENDFORM.
 
 ************************************************************************
-* Convers??o Tipo Chave Pix (LTipChv)
+* Conversao Tipo Chave Pix (LTipChv)
 ************************************************************************
 FORM f_conv_tipchv
   USING    p_tipo
@@ -301,7 +330,7 @@ FORM f_conv_tipchv
 ENDFORM.
 
 ************************************************************************
-* Convers??o Estado (LEstFed)
+* Conversao Estado (LEstFed)
 ************************************************************************
 
 FORM f_conv_estfed
@@ -328,17 +357,17 @@ FORM f_conv_tipcon
 
   CASE p_empid.
 
-    WHEN '01'. " Funcion??rio
+    WHEN '01'. " Funcionario
       p_tipcon = '1'.  " Empregado
 
     WHEN '02'. " Trabalhador Rural
       p_tipcon = '3'.  " Trabalhador Rural
 
-    WHEN '03'. " Estatut??rio
-      p_tipcon = '9'.  " Agente P??blico
+    WHEN '03'. " Estatutario
+      p_tipcon = '9'.  " Agente Publico
 
-    WHEN '04'. " Estagi??rio
-      p_tipcon = '5'.  " Estagi??rio
+    WHEN '04'. " Estagiario
+      p_tipcon = '5'.  " Estagiario
 
     WHEN '05'. " Diretor
       p_tipcon = '2'.  " Diretor
@@ -346,10 +375,10 @@ FORM f_conv_tipcon
     WHEN '06'. " Conselheiro
       p_tipcon = '2'.  " Diretor
 
-    WHEN '07'. " Tempor??rio
+    WHEN '07'. " Temporario
       p_tipcon = '7'.  " Prazo Determinado
 
-    WHEN '08'. " Aut??nomo
+    WHEN '08'. " Autonomo
       p_tipcon = '11'. " Cooperado
 
     WHEN '09'. " Pensionista
@@ -390,15 +419,14 @@ FORM f_remove_mask
   USING    p_value
   CHANGING p_clean.
 
-  DATA: lv_clean TYPE string,
-        lv_space TYPE c LENGTH 1 VALUE space.
+  DATA lv_clean TYPE string.
 
   lv_clean = p_value.
 
   REPLACE ALL OCCURRENCES OF '.' IN lv_clean WITH ''.
   REPLACE ALL OCCURRENCES OF '/' IN lv_clean WITH ''.
   REPLACE ALL OCCURRENCES OF '-' IN lv_clean WITH ''.
-  REPLACE ALL OCCURRENCES OF lv_space IN lv_clean WITH ''.
+  CONDENSE lv_clean NO-GAPS.
 
   p_clean = lv_clean.
 
@@ -417,7 +445,7 @@ FORM f_conv_mes
     p_mes_out = p_mes.
   ENDIF.
 
-  " Garantir 2 posi????es
+  " Garantir 2 posicoes
   IF strlen( p_mes_out ) = 1.
     p_mes_out = |0{ p_mes_out }|.
   ENDIF.
@@ -432,10 +460,10 @@ FORM f_conv_tpomvt
 
   CASE p_massn.
 
-    WHEN '1'. p_tpomvt = '1'. " Admiss??o
-    WHEN '2'. p_tpomvt = '2'. " Demiss??o
-    WHEN '3'. p_tpomvt = '3'. " Transfer??ncia
-    WHEN '4'. p_tpomvt = '4'. " Promo????o
+    WHEN '1'. p_tpomvt = '1'. " Admissao
+    WHEN '2'. p_tpomvt = '2'. " Demissao
+    WHEN '3'. p_tpomvt = '3'. " Transferencia
+    WHEN '4'. p_tpomvt = '4'. " Promocao
 
     WHEN OTHERS.
       p_tpomvt = '0'. " Default
@@ -453,13 +481,13 @@ FORM f_conv_mtvalt
   CASE p_massg.
 
     WHEN '04' OR '05'.
-      p_mtvalt = '1'. " Altera????o cargo
+      p_mtvalt = '1'. " Alteracao cargo
 
     WHEN '06'.
-      p_mtvalt = '2'. " Altera????o fun????o
+      p_mtvalt = '2'. " Alteracao funcao
 
     WHEN OTHERS.
-      p_mtvalt = '0'. " Default obrigat??rio
+      p_mtvalt = '0'. " Default obrigatorio
 
   ENDCASE.
 
@@ -474,10 +502,10 @@ FORM f_conv_tipmot
   CASE p_massg.
 
     WHEN '01' OR '02' OR '03'.
-      p_tipmot = 'A'. " Admiss??o
+      p_tipmot = 'A'. " Admissao
 
     WHEN '04' OR '05' OR '06'.
-      p_tipmot = 'M'. " Movimenta????o
+      p_tipmot = 'M'. " Movimentacao
 
     WHEN '07' OR '08'.
       p_tipmot = 'D'. " Desligamento
@@ -500,22 +528,22 @@ FORM f_conv_admeso
     CASE p_massg.
 
       WHEN '02'. " Emprego Adquirido
-        p_admeso = '4'. " Transfer??ncia por motivo de sucess??o, incorpora????o, cis??o ou fus??o
+        p_admeso = '4'. " Sucessao/incorporacao
 
-      WHEN '03'. " Nova Contrata????o
-        p_admeso = '1'. " Admiss??o
+      WHEN '03'. " Nova Contratacao
+        p_admeso = '1'. " Admissao
 
       WHEN '07'. " Contrato por prazo determinado
-        p_admeso = '1'. " Admiss??o
+        p_admeso = '1'. " Admissao
 
       WHEN '08'. " Primeiro empregado
-        p_admeso = '1'. " Admiss??o
+        p_admeso = '1'. " Admissao
 
-      WHEN '10'. " Nova Contrata????o (Ev.2190)
-        p_admeso = '1'. " Admiss??o
+      WHEN '10'. " Nova Contratacao (Ev.2190)
+        p_admeso = '1'. " Admissao
 
-      WHEN '11'. " Reemprego (Recontrata????o)
-        p_admeso = '1'. " Admiss??o
+      WHEN '11'. " Reemprego (Recontratacao)
+        p_admeso = '1'. " Admissao
 
       WHEN OTHERS.
         p_admeso = '1'.
@@ -532,11 +560,11 @@ FORM f_conv_indadm
 
   CLEAR p_indadm.
 
-  p_indadm = '1'. " padr??o = Normal
+  p_indadm = '1'. " padrao = Normal
 
   IF p_massn = 'ZA'
  AND p_massg = '01'.
-    p_indadm = '3'. " Decorrente de Decis??o Judicial
+    p_indadm = '3'. " Decorrente de Decisao Judicial
   ENDIF.
 
 ENDFORM.
@@ -548,28 +576,28 @@ FORM f_conv_tipadm
 
   CLEAR p_tipadm.
 
-  p_tipadm = '1'. " padr??o
+  p_tipadm = '1'. " padrao
 
   IF p_massn = 'Z1'.
 
     CASE p_massg.
 
-      WHEN '01'. " Transf Internacional-Contrata????o
-        p_tipadm = '5'.  " Incorpora????o/Fus??o/Cis??o/Outros
+      WHEN '01'. " Transf Internacional-Contratacao
+        p_tipadm = '5'.  " Incorporacao/Fusao/Cisao/Outros
 
       WHEN '02'. " Emprego Adquirido
-        p_tipadm = '5'.  " Incorpora????o/Fus??o/Cis??o/Outros
+        p_tipadm = '5'.  " Incorporacao/Fusao/Cisao/Outros
 
-      WHEN '03'. " Nova Contrata????o
+      WHEN '03'. " Nova Contratacao
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '04'. " Transfer??ncia Protegida (c/TUP)
-        p_tipadm = '3'.  " Transfer??ncia c/ ??nus
+      WHEN '04'. " Transferencia Protegida (c/TUP)
+        p_tipadm = '3'.  " Transferencia c/ onus
 
-      WHEN '05'. " Reintegra????o
-        p_tipadm = '6'.  " Reintegra????o
+      WHEN '05'. " Reintegracao
+        p_tipadm = '6'.  " Reintegracao
 
-      WHEN '06'. " Headcount Or??ado
+      WHEN '06'. " Headcount Orcado
         p_tipadm = '1'.  " Primeiro Emprego
 
       WHEN '07'. " Contrato por prazo determinado
@@ -578,13 +606,13 @@ FORM f_conv_tipadm
       WHEN '08'. " Primeiro empregado
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '09'. " Substitui????o
+      WHEN '09'. " Substituicao
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '10'. " Nova Contrata????o (Ev.2190)
+      WHEN '10'. " Nova Contratacao (Ev.2190)
         p_tipadm = '1'.  " Primeiro Emprego
 
-      WHEN '11'. " Reemprego (Recontrata????o)
+      WHEN '11'. " Reemprego (Recontratacao)
         p_tipadm = '2'.  " Reemprego
 
       WHEN OTHERS.
@@ -738,7 +766,8 @@ FORM f_exportar_dados.
   DATA: gv_filename TYPE string,
         gv_header   TYPE string,
         gv_line     TYPE string,
-        gt_file     TYPE STANDARD TABLE OF string.
+        gt_file     TYPE STANDARD TABLE OF string,
+        gv_numemp   TYPE string.
 
   gv_filename = sy-datum && '_SENIOR_1000.csv'.
   gv_header = 'NUMEMP;NOMEMP;APEEMP;DDITEL;DDDTEL;NUMTEL'.
@@ -754,9 +783,15 @@ FORM f_exportar_dados.
 
   APPEND gv_header TO gt_file.
 
+  SORT tl_t001 BY bukrs.
+
   LOOP AT tl_t001 ASSIGNING FIELD-SYMBOL(<fs_t001>).
 
-    gv_line = <fs_t001>-bukrs && ';' &&
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_t001>-bukrs
+      CHANGING gv_numemp.
+
+    gv_line = gv_numemp && ';' &&
               <fs_t001>-butxt && ';' &&
               <fs_t001>-butxt && ';' &&
               '00' && ';' &&
@@ -877,8 +912,13 @@ FORM f_exportar_dados.
 
     ENDIF.
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_branch>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-          <fs_branch>-bukrs            && ';'
+          lv_numemp                    && ';'
         && <fs_branch>-branch          && ';'
         && branch_record-name          && ';'
         && branch_record-name          && ';'
@@ -1096,8 +1136,13 @@ FORM f_export.
         CHANGING lv_datext.
     ENDIF.
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_ccu>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_ccu>-bukrs && ';' &&
+      lv_numemp      && ';' &&
       lv_codccu      && ';' &&
       lv_nomccu      && ';' &&
       lv_datcri      && ';' &&
@@ -1124,6 +1169,7 @@ TYPES: BEGIN OF ty_oem,
          stcd2      TYPE lfa1-stcd2,
          stcd3      TYPE lfa1-stcd3,
          adrnr      TYPE lfa1-adrnr,
+         taxjurcode TYPE adrc-taxjurcode,
          region     TYPE adrc-region,
          city_code  TYPE adrc-city_code,
          street     TYPE adrc-street,
@@ -1198,6 +1244,7 @@ FORM f_export.
          lfa1~stcd2,
          lfa1~stcd3,
          lfa1~adrnr,
+         adrc~taxjurcode,
          adrc~region,
          adrc~city_code,
          adrc~street,
@@ -1214,8 +1261,12 @@ FORM f_export.
      AND adrc~nation     = @space
    WHERE lfa1~loevm = @space.
 
-  IF sy-subrc <> 0 OR gt_oem IS INITIAL.
-    MESSAGE 'Nenhuma outra empresa encontrada em LFA1.' TYPE 'E'.
+  APPEND gv_header TO gt_file.
+
+  IF gt_oem IS INITIAL.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+    WRITE: / 'Layout 1003 gerado sem registros validos.'.
+    RETURN.
   ENDIF.
 
   SELECT addrnumber,
@@ -1228,8 +1279,6 @@ FORM f_export.
 
   SORT gt_phone BY addrnumber.
   DELETE ADJACENT DUPLICATES FROM gt_phone COMPARING addrnumber.
-
-  APPEND gv_header TO gt_file.
 
   SORT gt_oem BY lifnr.
 
@@ -1278,7 +1327,10 @@ FORM f_export.
     PERFORM f_sanitize_text USING lv_nomoem CHANGING lv_nomoem.
     PERFORM f_sanitize_text USING lv_apeoem CHANGING lv_apeoem.
 
-    lv_codcid = <fs_oem>-city_code.
+    lv_codcid = <fs_oem>-taxjurcode.
+    IF lv_codcid IS INITIAL.
+      lv_codcid = <fs_oem>-city_code.
+    ENDIF.
     PERFORM f_remove_mask IN PROGRAM zhr_export_senior
       USING lv_codcid
       CHANGING lv_codcid.
@@ -1350,7 +1402,9 @@ FORM f_export.
   ENDLOOP.
 
   IF lines( gt_file ) <= 1.
-    MESSAGE 'Nenhuma outra empresa valida encontrada em LFA1.' TYPE 'E'.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+    WRITE: / 'Layout 1003 gerado sem registros validos.'.
+    RETURN.
   ENDIF.
 
   PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
@@ -2459,6 +2513,7 @@ TYPES: BEGIN OF ty_addr_source,
        END OF ty_addr_source,
        BEGIN OF ty_adrc,
          addrnumber TYPE adrc-addrnumber,
+         taxjurcode TYPE adrc-taxjurcode,
          city_code  TYPE adrc-city_code,
          city2      TYPE adrc-city2,
          post_code1 TYPE adrc-post_code1,
@@ -2571,6 +2626,7 @@ cepbai.
 
   IF gt_source IS NOT INITIAL.
     SELECT addrnumber,
+           taxjurcode,
            city_code,
            city2,
            post_code1
@@ -2594,7 +2650,10 @@ cepbai.
       BINARY SEARCH.
 
     IF sy-subrc = 0.
-      lv_codcid = <fs_adrc>-city_code.
+      lv_codcid = <fs_adrc>-taxjurcode.
+      IF lv_codcid IS INITIAL.
+        lv_codcid = <fs_adrc>-city_code.
+      ENDIF.
       lv_nombai = <fs_adrc>-city2.
       lv_cepbai = <fs_adrc>-post_code1.
     ENDIF.
@@ -2642,8 +2701,10 @@ cepbai.
 cepbai.
 
   IF gt_bairro IS INITIAL.
-    MESSAGE 'Nenhum bairro com codigo IBGE valido foi encontrado.'
-TYPE 'E'.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING
+gv_filename CHANGING gt_file p_locl p_serv.
+    WRITE: / 'Layout 1011 gerado sem bairros com codigo IBGE valido.'.
+    RETURN.
   ENDIF.
 
   CLEAR: lv_city, lv_seq.
@@ -2746,7 +2807,7 @@ FORM f_exportar_dados.
   && 'DATAPO;OUTCON;OUTTET;DEFFIS;RACCOR;CODDEF;'
   && 'CATSEF;MOVSEF;BENREA;DOCEST;TPCTBA;APOIDA;DATCHE;'
   && 'RECADI;REC13S;LISRAI;EMICAR;CONRHO;PERPAG;'
-  && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF;'.
+  && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF'.
 
 *---------------------------------------------------------------------*
 * Sele??o de colaboradores
@@ -3032,9 +3093,13 @@ WHERE p1~begda <= @sy-datum
       lv_deffis = 'S'.
     ENDIF.
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_emp>-bukrs
+      CHANGING lv_numemp.
 
     gv_line =
-      <fs_emp>-bukrs      && ';' && " NUMEMP
+      lv_numemp           && ';' && " NUMEMP
       lv_tipcol           && ';' && " TIPCOL
       <fs_emp>-pernr      && ';' && " NUMCAD
       <fs_emp>-cname      && ';' && " NOMFUN
@@ -3553,8 +3618,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_emp>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_emp>-bukrs && ';' && " NUMEMP
+      lv_numemp      && ';' && " NUMEMP
       lv_tipcol     && ';' && " TIPCOL
       <fs_emp>-pernr && ';' && " NUMCAD
       ''            && ';' && " FICREG
@@ -3734,8 +3804,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_afast>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_afast>-bukrs     && ';' && " ENDUZ
+      lv_numemp            && ';' && " ENDUZ
       lv_tipcol            && ';' && " TIPCOL
       <fs_afast>-pernr     && ';' && " NUMCAD
       lv_datafa            && ';' && " DATAFA
@@ -3859,8 +3934,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs    && ';' && " NUMEMP
+      lv_numemp          && ';' && " NUMEMP
       lv_tipcol          && ';' && " TIPCOL
       <fs_hist>-pernr    && ';' && " NUMCAD
       lv_datalt          && ';' && " DATALT
@@ -4013,6 +4093,9 @@ FORM f_export.
       CHANGING lv_datnot.
 
     lv_numemp = <fs_hist>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_hist>-pernr ALPHA = OUT }|.
     lv_notfic = <fs_hist>-mgtxt.
 
@@ -4185,8 +4268,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_datalt         && ';' && " DATALT
@@ -4298,8 +4386,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_datalt         && ';' && " DATALT
@@ -4416,8 +4509,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_datalt         && ';' && " DATALT
@@ -4535,8 +4633,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_datalt         && ';' && " DATALT
@@ -4690,8 +4793,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_datalt         && ';' && " DATALT
@@ -4838,8 +4946,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_inietb         && ';' && " INIETB
@@ -5068,8 +5181,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' &&
+      lv_numemp         && ';' &&
       lv_tipcol         && ';' &&
       <fs_hist>-pernr   && ';' &&
       lv_datalt         && ';' &&
@@ -5167,6 +5285,9 @@ FORM f_export.
     PERFORM f_format_date USING <fs_hist>-begda CHANGING lv_datalt.
 
     lv_numemp = <fs_hist>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_hist>-pernr ALPHA = OUT }|.
 
     PERFORM f_fit_field USING lv_numemp 4 CHANGING lv_numemp.
@@ -5334,6 +5455,9 @@ FORM f_export.
     PERFORM f_format_date USING <fs_hist>-begda CHANGING lv_datalt.
 
     lv_numemp = <fs_hist>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_hist>-pernr ALPHA = OUT }|.
 
     PERFORM f_fit_field USING lv_numemp 4 CHANGING lv_numemp.
@@ -5497,6 +5621,9 @@ FORM f_export.
     PERFORM f_format_date USING <fs_hist>-begda CHANGING lv_datalt.
 
     lv_numemp = <fs_hist>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_hist>-pernr ALPHA = OUT }|.
     lv_codesc = <fs_hist>-schkz.
     lv_codtma = '1'.
@@ -5704,8 +5831,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_hist>-bukrs   && ';' && " NUMEMP
+      lv_numemp         && ';' && " NUMEMP
       lv_tipcol         && ';' && " TIPCOL
       <fs_hist>-pernr   && ';' && " NUMCAD
       lv_datalt         && ';' && " DATALT
@@ -5892,8 +6024,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_dep>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_dep>-bukrs      && ';' && " NUMEMP
+      lv_numemp           && ';' && " NUMEMP
       lv_tipcol           && ';' && " TIPCOL
       <fs_dep>-pernr      && ';' && " NUMCAD
       lv_coddep           && ';' && " CODDEP
@@ -6089,6 +6226,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_quota>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_quota>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_quota>-pernr ALPHA = OUT }|.
 
     PERFORM f_format_date USING <fs_quota>-begda CHANGING lv_iniper.
@@ -6435,6 +6575,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_master>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_master>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_master>-pernr ALPHA = OUT }|.
     lv_tipfer_txt = <fs_master>-tipfer.
     lv_opc13s = 'N'.
@@ -6717,6 +6860,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_vac>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_vac>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_vac>-pernr ALPHA = OUT }|.
     lv_tabeve = '1'.
     lv_codeve = <fs_vac>-awart.
@@ -6988,6 +7134,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_prog>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_prog>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_prog>-pernr ALPHA = OUT }|.
     lv_prg13s = 'N'.
 
@@ -7379,6 +7528,9 @@ FORM f_export.
       CHANGING lv_caudem.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
 
     PERFORM f_format_amount USING lv_qtdind_num CHANGING lv_qtdind.
@@ -8008,6 +8160,9 @@ FORM f_export.
     ENDIF.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_discol = ''.
     lv_calrcs = '0'.
@@ -8459,6 +8614,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_tabeve = '1'.
     PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.
@@ -8802,6 +8960,9 @@ FORM f_export.
           lv_fimapu TYPE string.
 
     lv_numemp = <fs_calc>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_calc>-bukrs
+      CHANGING lv_numemp.
     lv_codcal = <fs_calc>-codcal.
     lv_tipcal = <fs_calc>-tipcal.
     lv_perref = <fs_calc>-perref.
@@ -9155,6 +9316,9 @@ FORM f_export.
           lv_datpag TYPE string.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_codcal = |{ <fs_calc>-codcal }|.
     lv_tabeve = '1'.
@@ -9665,6 +9829,9 @@ FORM f_export.
           lv_valliq TYPE string.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_codfil = <fs_pay>-btrtl.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_seqpte = |{ lv_seqpte_i }|.
@@ -10106,6 +10273,9 @@ FORM f_export.
           lv_coddep TYPE string.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_coddep = '1'.
 
@@ -11181,14 +11351,18 @@ FORM zf_process_registration USING us_dados TYPE any.
   DATA: lv_persg  TYPE persg,
         lv_tipcol TYPE c LENGTH 1,
         lv_dats   TYPE d,
-        lv_datopc TYPE char10.
+        lv_datopc TYPE char10,
+        lv_numemp TYPE string.
 
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
   " C?digo da Empresa
   ASSIGN COMPONENT 'BUKRS' OF STRUCTURE us_dados
     TO FIELD-SYMBOL(<lf_value>).
-  <lf_file>-numemp = <lf_value>.
+  PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+    USING <lf_value>
+    CHANGING lv_numemp.
+  <lf_file>-numemp = lv_numemp.
 
   " Tipo Colaborador
   ASSIGN COMPONENT 'PERSG' OF STRUCTURE us_dados TO <lf_value>.
@@ -11377,14 +11551,18 @@ FORM zf_process_registration USING us_dados TYPE any.
   DATA: lv_persg  TYPE persg,
         lv_tipcol TYPE c LENGTH 1,
         lv_dats   TYPE d,
-        lv_datopc TYPE char10.
+        lv_datopc TYPE char10,
+        lv_numemp TYPE string.
 
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
   " C?digo da Empresa
   ASSIGN COMPONENT 'BUKRS' OF STRUCTURE us_dados
     TO FIELD-SYMBOL(<lf_value>).
-  <lf_file>-numemp = <lf_value>.
+  PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+    USING <lf_value>
+    CHANGING lv_numemp.
+  <lf_file>-numemp = lv_numemp.
 
   " Tipo Colaborador
   ASSIGN COMPONENT 'PERSG' OF STRUCTURE us_dados TO <lf_value>.
