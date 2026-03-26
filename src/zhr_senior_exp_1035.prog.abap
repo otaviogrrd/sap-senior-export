@@ -29,6 +29,10 @@ TYPES: BEGIN OF ty_prog,
          prgdpg  TYPE datum,
        END OF ty_prog.
 
+TYPES ty_t_quota TYPE STANDARD TABLE OF ty_quota WITH DEFAULT KEY.
+
+DATA gt_quota TYPE STANDARD TABLE OF ty_quota.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -48,8 +52,7 @@ FORM f_export.
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
 
-  DATA: gt_quota TYPE STANDARD TABLE OF ty_quota,
-        gt_vac   TYPE STANDARD TABLE OF ty_vac,
+  DATA: gt_vac   TYPE STANDARD TABLE OF ty_vac,
         gt_prog  TYPE STANDARD TABLE OF ty_prog.
 
   gv_filename = sy-datum && '_SENIOR_1035.csv'.
@@ -88,7 +91,6 @@ FORM f_export.
     DATA lv_prgdpg TYPE datum.
 
     PERFORM f_find_quota
-      TABLES gt_quota
       USING <fs_vac>-pernr <fs_vac>-begda
       CHANGING ls_quota.
 
@@ -134,7 +136,7 @@ FORM f_export.
     DATA lv_prgdfe TYPE string.
     DATA lv_prgdab TYPE string.
     DATA lv_prg13s TYPE string.
-    DATA lv_prgdpg TYPE string.
+    DATA lv_prgdpg_txt TYPE string.
 
     PERFORM f_conv_tipcol IN PROGRAM zhr_export_senior
       USING <fs_prog>-persg
@@ -146,7 +148,7 @@ FORM f_export.
 
     PERFORM f_format_date USING <fs_prog>-iniper CHANGING lv_iniper_txt.
     PERFORM f_format_date USING <fs_prog>-prgdat CHANGING lv_prgdat.
-    PERFORM f_format_date USING <fs_prog>-prgdpg CHANGING lv_prgdpg.
+    PERFORM f_format_date USING <fs_prog>-prgdpg CHANGING lv_prgdpg_txt.
     PERFORM f_format_amount USING <fs_prog>-prgdfe CHANGING lv_prgdfe.
     PERFORM f_format_amount USING <fs_prog>-prgdab CHANGING lv_prgdab.
 
@@ -158,7 +160,7 @@ FORM f_export.
     PERFORM f_fit_field USING lv_prgdfe 5 CHANGING lv_prgdfe.
     PERFORM f_fit_field USING lv_prgdab 5 CHANGING lv_prgdab.
     PERFORM f_fit_field USING lv_prg13s 1 CHANGING lv_prg13s.
-    PERFORM f_fit_field USING lv_prgdpg 10 CHANGING lv_prgdpg.
+    PERFORM f_fit_field USING lv_prgdpg_txt 10 CHANGING lv_prgdpg_txt.
 
     CONCATENATE
       lv_numemp
@@ -169,7 +171,7 @@ FORM f_export.
       lv_prgdfe
       lv_prgdab
       lv_prg13s
-      lv_prgdpg
+      lv_prgdpg_txt
       INTO gv_line
       SEPARATED BY ';'.
 
@@ -184,13 +186,14 @@ FORM f_export.
 ENDFORM.
 
 FORM f_find_quota
-  TABLES pt_quota STRUCTURE ty_quota
   USING    pv_pernr TYPE pernr_d
            pv_date  TYPE datum
   CHANGING ps_quota TYPE ty_quota.
 
+  DATA ls_quota TYPE ty_quota.
+
   CLEAR ps_quota.
-  LOOP AT pt_quota INTO DATA(ls_quota) WHERE pernr = pv_pernr.
+  LOOP AT gt_quota INTO ls_quota WHERE pernr = pv_pernr.
     IF ls_quota-begda <= pv_date AND ls_quota-endda >= pv_date.
       ps_quota = ls_quota.
       EXIT.
@@ -231,13 +234,16 @@ FORM f_format_amount
   USING    pv_value TYPE any
   CHANGING pv_text  TYPE string.
 
-  DATA lv_value TYPE p LENGTH 15 DECIMALS 2.
+  DATA: lv_value TYPE p LENGTH 15 DECIMALS 2,
+        lv_text  TYPE c LENGTH 40.
 
   CLEAR pv_text.
+  CLEAR lv_text.
   lv_value = pv_value.
-  WRITE lv_value TO pv_text DECIMALS 2 NO-GROUPING.
-  CONDENSE pv_text NO-GAPS.
-  REPLACE ALL OCCURRENCES OF '.' IN pv_text WITH ','.
+  WRITE lv_value TO lv_text DECIMALS 2 NO-GROUPING.
+  CONDENSE lv_text NO-GAPS.
+  REPLACE ALL OCCURRENCES OF '.' IN lv_text WITH ','.
+  pv_text = lv_text.
 
 ENDFORM.
 

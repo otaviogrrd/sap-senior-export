@@ -25,6 +25,12 @@ TYPES: BEGIN OF ty_salary,
          bet01 TYPE pa0008-bet01,
        END OF ty_salary.
 
+TYPES ty_t_quota  TYPE STANDARD TABLE OF ty_quota WITH DEFAULT KEY.
+TYPES ty_t_salary TYPE STANDARD TABLE OF ty_salary WITH DEFAULT KEY.
+
+DATA: gt_quota  TYPE STANDARD TABLE OF ty_quota,
+      gt_salary TYPE STANDARD TABLE OF ty_salary.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -44,9 +50,7 @@ FORM f_export.
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
 
-  DATA: gt_quota  TYPE STANDARD TABLE OF ty_quota,
-        gt_vac    TYPE STANDARD TABLE OF ty_vac,
-        gt_salary TYPE STANDARD TABLE OF ty_salary.
+  DATA gt_vac TYPE STANDARD TABLE OF ty_vac.
 
   gv_filename = sy-datum && '_SENIOR_1034.csv'.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;INIPER;INIFER;TABEVE;CODEVE;'
@@ -95,12 +99,10 @@ FORM f_export.
     DATA lv_valeve_num TYPE p LENGTH 15 DECIMALS 2.
 
     PERFORM f_find_quota
-      TABLES gt_quota
       USING <fs_vac>-pernr <fs_vac>-begda
       CHANGING ls_quota.
 
     PERFORM f_get_salary_base
-      TABLES gt_salary
       USING <fs_vac>-pernr <fs_vac>-begda
       CHANGING lv_salbas_num.
 
@@ -164,13 +166,14 @@ FORM f_export.
 ENDFORM.
 
 FORM f_find_quota
-  TABLES pt_quota STRUCTURE ty_quota
   USING    pv_pernr TYPE pernr_d
            pv_date  TYPE datum
   CHANGING ps_quota TYPE ty_quota.
 
+  DATA ls_quota TYPE ty_quota.
+
   CLEAR ps_quota.
-  LOOP AT pt_quota INTO DATA(ls_quota) WHERE pernr = pv_pernr.
+  LOOP AT gt_quota INTO ls_quota WHERE pernr = pv_pernr.
     IF ls_quota-begda <= pv_date AND ls_quota-endda >= pv_date.
       ps_quota = ls_quota.
       EXIT.
@@ -180,13 +183,14 @@ FORM f_find_quota
 ENDFORM.
 
 FORM f_get_salary_base
-  TABLES pt_salary STRUCTURE ty_salary
   USING    pv_pernr TYPE pernr_d
            pv_date  TYPE datum
   CHANGING pv_salbas TYPE p.
 
+  DATA ls_salary TYPE ty_salary.
+
   CLEAR pv_salbas.
-  LOOP AT pt_salary INTO DATA(ls_salary) WHERE pernr = pv_pernr.
+  LOOP AT gt_salary INTO ls_salary WHERE pernr = pv_pernr.
     IF ls_salary-begda <= pv_date AND ls_salary-endda >= pv_date.
       pv_salbas = ls_salary-bet01.
       EXIT.
@@ -214,13 +218,16 @@ FORM f_format_amount
   USING    pv_value TYPE any
   CHANGING pv_text  TYPE string.
 
-  DATA lv_value TYPE p LENGTH 15 DECIMALS 2.
+  DATA: lv_value TYPE p LENGTH 15 DECIMALS 2,
+        lv_text  TYPE c LENGTH 40.
 
   CLEAR pv_text.
+  CLEAR lv_text.
   lv_value = pv_value.
-  WRITE lv_value TO pv_text DECIMALS 2 NO-GROUPING.
-  CONDENSE pv_text NO-GAPS.
-  REPLACE ALL OCCURRENCES OF '.' IN pv_text WITH ','.
+  WRITE lv_value TO lv_text DECIMALS 2 NO-GROUPING.
+  CONDENSE lv_text NO-GAPS.
+  REPLACE ALL OCCURRENCES OF '.' IN lv_text WITH ','.
+  pv_text = lv_text.
 
 ENDFORM.
 

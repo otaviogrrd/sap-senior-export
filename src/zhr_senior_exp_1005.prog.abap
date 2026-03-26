@@ -3,15 +3,15 @@ REPORT zhr_senior_exp_1005.
 PARAMETERS: p_locl TYPE string LOWER CASE,
             p_serv TYPE string LOWER CASE.
 
-AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
-  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
-    CHANGING p_locl.
-
 DATA: gv_filename TYPE string,
       gv_header   TYPE string,
       gv_line     TYPE string,
       gt_file     TYPE STANDARD TABLE OF string,
       gv_count    TYPE i.
+
+AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
+  PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
+    CHANGING p_locl.
 
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_serv.
   PERFORM zf_search_help_directory IN PROGRAM zhr_export_senior

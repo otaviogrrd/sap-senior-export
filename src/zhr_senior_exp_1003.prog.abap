@@ -51,6 +51,7 @@ FORM f_export.
         lv_nomoem    TYPE string,
         lv_apeoem    TYPE string,
         lv_codcid    TYPE string,
+        lv_street    TYPE string,
         lv_endoem    TYPE string,
         lv_endcpl    TYPE string,
         lv_endnum    TYPE string,
@@ -120,7 +121,7 @@ FORM f_export.
   LOOP AT gt_oem ASSIGNING FIELD-SYMBOL(<fs_oem>).
 
     CLEAR: lv_codoem, lv_nomoem, lv_apeoem, lv_codcid, lv_endoem,
-           lv_endcpl, lv_endnum, lv_dditel, lv_dddtel, lv_numtel,
+           lv_street, lv_endcpl, lv_endnum, lv_dditel, lv_dddtel, lv_numtel,
            lv_tipins, lv_numcgc, lv_insest, lv_tiplgr, lv_codcep,
            lv_codbai, lv_codpai, lv_cfjcgc, lv_tax_id, lv_tax_clean,
            lv_phone.
@@ -173,8 +174,9 @@ FORM f_export.
     lv_endcpl = <fs_oem>-str_suppl1.
     PERFORM f_sanitize_text USING lv_endcpl CHANGING lv_endcpl.
 
+    lv_street = <fs_oem>-street.
     PERFORM f_split_logradouro
-      USING <fs_oem>-street
+      USING lv_street
       CHANGING lv_tiplgr lv_endoem.
 
     lv_codcep = <fs_oem>-post_code1.

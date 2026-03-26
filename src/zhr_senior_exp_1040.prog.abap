@@ -35,6 +35,14 @@ TYPES: BEGIN OF ty_calc,
          codcal TYPE n LENGTH 4,
        END OF ty_calc.
 
+TYPES ty_t_asg  TYPE STANDARD TABLE OF ty_asg WITH DEFAULT KEY.
+TYPES ty_t_pay  TYPE STANDARD TABLE OF ty_pay WITH DEFAULT KEY.
+TYPES ty_t_calc TYPE STANDARD TABLE OF ty_calc WITH DEFAULT KEY.
+
+DATA: gt_asg  TYPE STANDARD TABLE OF ty_asg,
+      gt_pay  TYPE STANDARD TABLE OF ty_pay,
+      gt_calc TYPE STANDARD TABLE OF ty_calc.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -53,10 +61,6 @@ FORM f_export.
         gv_header   TYPE string,
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
-
-  DATA: gt_asg  TYPE STANDARD TABLE OF ty_asg,
-        gt_pay  TYPE STANDARD TABLE OF ty_pay,
-        gt_calc TYPE STANDARD TABLE OF ty_calc.
 
   gv_filename = sy-datum && '_SENIOR_1040.csv'.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;CODCAL;TABEVE;CODEVE;REFEVE;'
@@ -77,11 +81,9 @@ FORM f_export.
 
   SORT gt_asg BY pernr begda DESCENDING endda DESCENDING.
 
-  PERFORM f_collect_payments
-    TABLES gt_asg gt_pay.
+  PERFORM f_collect_payments.
 
-  PERFORM f_build_calc_map
-    TABLES gt_pay gt_calc.
+  PERFORM f_build_calc_map.
 
   SORT gt_calc BY bukrs tipcal perref paydt fpbeg fpend.
 
@@ -187,8 +189,7 @@ FORM f_export.
 ENDFORM.
 
 FORM f_collect_payments
-  TABLES pt_asg STRUCTURE ty_asg
-         pt_pay STRUCTURE ty_pay.
+  .
 
   DATA: lt_pernr TYPE SORTED TABLE OF pernr_d WITH UNIQUE KEY table_line,
         lt_rgdir TYPE STANDARD TABLE OF pc261,
@@ -198,7 +199,7 @@ FORM f_collect_payments
         lv_tipcal TYPE string,
         lv_perref TYPE string.
 
-  LOOP AT pt_asg ASSIGNING FIELD-SYMBOL(<fs_asg>).
+  LOOP AT gt_asg ASSIGNING FIELD-SYMBOL(<fs_asg>).
     INSERT <fs_asg>-pernr INTO TABLE lt_pernr.
   ENDLOOP.
 
@@ -231,7 +232,6 @@ FORM f_collect_payments
       ENDIF.
 
       PERFORM f_get_assignment
-        TABLES pt_asg
         USING lv_pernr lv_keydt
         CHANGING ls_asg.
 
@@ -257,39 +257,38 @@ FORM f_collect_payments
       ls_pay-seqnr  = <fs_rgdir>-seqnr.
       ls_pay-tipcal = lv_tipcal.
       ls_pay-perref = lv_perref.
-      APPEND ls_pay TO pt_pay.
+      APPEND ls_pay TO gt_pay.
 
     ENDLOOP.
   ENDLOOP.
 
-  SORT pt_pay BY pernr seqnr.
-  DELETE ADJACENT DUPLICATES FROM pt_pay COMPARING pernr seqnr.
+  SORT gt_pay BY pernr seqnr.
+  DELETE ADJACENT DUPLICATES FROM gt_pay COMPARING pernr seqnr.
 
 ENDFORM.
 
 FORM f_build_calc_map
-  TABLES pt_pay  STRUCTURE ty_pay
-         pt_calc STRUCTURE ty_calc.
+  .
 
   DATA lv_codcal TYPE i.
   DATA lv_bukrs  TYPE bukrs.
 
-  LOOP AT pt_pay ASSIGNING FIELD-SYMBOL(<fs_pay>).
+  LOOP AT gt_pay ASSIGNING FIELD-SYMBOL(<fs_pay>).
     APPEND VALUE ty_calc(
       bukrs  = <fs_pay>-bukrs
       tipcal = <fs_pay>-tipcal
       perref = <fs_pay>-perref
       paydt  = <fs_pay>-paydt
       fpbeg  = <fs_pay>-fpbeg
-      fpend  = <fs_pay>-fpend ) TO pt_calc.
+      fpend  = <fs_pay>-fpend ) TO gt_calc.
   ENDLOOP.
 
-  SORT pt_calc BY bukrs tipcal perref paydt fpbeg fpend.
-  DELETE ADJACENT DUPLICATES FROM pt_calc COMPARING bukrs tipcal perref paydt fpbeg fpend.
+  SORT gt_calc BY bukrs tipcal perref paydt fpbeg fpend.
+  DELETE ADJACENT DUPLICATES FROM gt_calc COMPARING bukrs tipcal perref paydt fpbeg fpend.
 
   CLEAR: lv_bukrs, lv_codcal.
 
-  LOOP AT pt_calc ASSIGNING FIELD-SYMBOL(<fs_calc>).
+  LOOP AT gt_calc ASSIGNING FIELD-SYMBOL(<fs_calc>).
     IF <fs_calc>-bukrs <> lv_bukrs.
       lv_bukrs = <fs_calc>-bukrs.
       CLEAR lv_codcal.
@@ -301,14 +300,13 @@ FORM f_build_calc_map
 ENDFORM.
 
 FORM f_get_assignment
-  TABLES pt_asg STRUCTURE ty_asg
   USING    pv_pernr TYPE pernr_d
            pv_keydt TYPE datum
   CHANGING ps_asg   TYPE ty_asg.
 
   CLEAR ps_asg.
 
-  LOOP AT pt_asg INTO DATA(ls_asg) WHERE pernr = pv_pernr.
+  LOOP AT gt_asg INTO DATA(ls_asg) WHERE pernr = pv_pernr.
     IF pv_keydt IS INITIAL
        OR ( ls_asg-begda <= pv_keydt AND ls_asg-endda >= pv_keydt ).
       ps_asg = ls_asg.
@@ -439,14 +437,17 @@ FORM f_format_amount
   USING    pv_value TYPE any
   CHANGING pv_text  TYPE string.
 
-  DATA lv_value TYPE p LENGTH 15 DECIMALS 2.
+  DATA: lv_value TYPE p LENGTH 15 DECIMALS 2,
+        lv_text  TYPE c LENGTH 40.
 
   CLEAR pv_text.
+  CLEAR lv_text.
   lv_value = pv_value.
 
-  WRITE lv_value TO pv_text DECIMALS 2 NO-GROUPING.
-  CONDENSE pv_text NO-GAPS.
-  REPLACE ALL OCCURRENCES OF '.' IN pv_text WITH ','.
+  WRITE lv_value TO lv_text DECIMALS 2 NO-GROUPING.
+  CONDENSE lv_text NO-GAPS.
+  REPLACE ALL OCCURRENCES OF '.' IN lv_text WITH ','.
+  pv_text = lv_text.
 
 ENDFORM.
 

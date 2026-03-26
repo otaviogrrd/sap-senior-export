@@ -26,6 +26,12 @@ TYPES: BEGIN OF ty_pay,
          rank   TYPE i,
        END OF ty_pay.
 
+TYPES ty_t_term TYPE STANDARD TABLE OF ty_term WITH DEFAULT KEY.
+TYPES ty_t_pay  TYPE STANDARD TABLE OF ty_pay WITH DEFAULT KEY.
+
+DATA: gt_term TYPE STANDARD TABLE OF ty_term,
+      gt_pay  TYPE STANDARD TABLE OF ty_pay.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -44,9 +50,6 @@ FORM f_export.
         gv_header   TYPE string,
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
-
-  DATA: gt_term TYPE STANDARD TABLE OF ty_term,
-        gt_pay  TYPE STANDARD TABLE OF ty_pay.
 
   gv_filename = sy-datum && '_SENIOR_1038.csv'.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATPAG;TABEVE;CODEVE;REFEVE;VALEVE'.
@@ -78,8 +81,7 @@ FORM f_export.
   SORT gt_term BY pernr datdem massn massg.
   DELETE ADJACENT DUPLICATES FROM gt_term COMPARING pernr datdem massn massg.
 
-  PERFORM f_collect_payments
-    TABLES gt_term gt_pay.
+  PERFORM f_collect_payments.
 
   LOOP AT gt_pay ASSIGNING FIELD-SYMBOL(<fs_pay>).
 
@@ -161,10 +163,10 @@ FORM f_export.
 ENDFORM.
 
 FORM f_collect_payments
-  TABLES pt_term STRUCTURE ty_term
-         pt_pay  STRUCTURE ty_pay.
+  .
 
-  DATA: lt_rgdir TYPE STANDARD TABLE OF pc261,
+  DATA: lt_term  TYPE ty_t_term,
+        lt_rgdir TYPE STANDARD TABLE OF pc261,
         ls_pay   TYPE ty_pay,
         lv_pernr TYPE pernr_d,
         lv_keydt TYPE datum.
@@ -173,9 +175,10 @@ FORM f_collect_payments
                  <fs_rgdir> TYPE pc261,
                  <fs_pay>   TYPE ty_pay.
 
-  SORT pt_term BY pernr datdem.
+  lt_term = gt_term.
+  SORT lt_term BY pernr datdem.
 
-  LOOP AT pt_term ASSIGNING <fs_term>.
+  LOOP AT lt_term ASSIGNING <fs_term>.
     AT NEW pernr.
       CLEAR lt_rgdir.
       lv_pernr = <fs_term>-pernr.
@@ -219,13 +222,13 @@ FORM f_collect_payments
       ls_pay-fpbeg  = <fs_rgdir>-fpbeg.
       ls_pay-fpend  = <fs_rgdir>-fpend.
       ls_pay-seqnr  = <fs_rgdir>-seqnr.
-      APPEND ls_pay TO pt_pay.
+      APPEND ls_pay TO gt_pay.
     ENDLOOP.
   ENDLOOP.
 
-  SORT pt_pay BY pernr datdem paydt seqnr DESCENDING.
-  DELETE ADJACENT DUPLICATES FROM pt_pay COMPARING pernr datdem paydt.
-  SORT pt_pay BY pernr datdem paydt seqnr.
+  SORT gt_pay BY pernr datdem paydt seqnr DESCENDING.
+  DELETE ADJACENT DUPLICATES FROM gt_pay COMPARING pernr datdem paydt.
+  SORT gt_pay BY pernr datdem paydt seqnr.
 
   DATA: lv_last_pernr TYPE pernr_d,
         lv_last_datdem TYPE begda,
@@ -233,7 +236,7 @@ FORM f_collect_payments
 
   CLEAR: lv_last_pernr, lv_last_datdem, lv_rank.
 
-  LOOP AT pt_pay ASSIGNING <fs_pay>.
+  LOOP AT gt_pay ASSIGNING <fs_pay>.
     IF <fs_pay>-pernr <> lv_last_pernr
        OR <fs_pay>-datdem <> lv_last_datdem.
       lv_last_pernr = <fs_pay>-pernr.
@@ -331,14 +334,17 @@ FORM f_format_amount
   USING    pv_value TYPE any
   CHANGING pv_text  TYPE string.
 
-  DATA lv_value TYPE p LENGTH 15 DECIMALS 2.
+  DATA: lv_value TYPE p LENGTH 15 DECIMALS 2,
+        lv_text  TYPE c LENGTH 40.
 
   CLEAR pv_text.
+  CLEAR lv_text.
   lv_value = pv_value.
 
-  WRITE lv_value TO pv_text DECIMALS 2 NO-GROUPING.
-  CONDENSE pv_text NO-GAPS.
-  REPLACE ALL OCCURRENCES OF '.' IN pv_text WITH ','.
+  WRITE lv_value TO lv_text DECIMALS 2 NO-GROUPING.
+  CONDENSE lv_text NO-GAPS.
+  REPLACE ALL OCCURRENCES OF '.' IN lv_text WITH ','.
+  pv_text = lv_text.
 
 ENDFORM.
 

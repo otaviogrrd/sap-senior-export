@@ -123,4 +123,6 @@ FORM f_exportar_dados.
 
   PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
 
-  WRITE: / 'Arq
+  WRITE: / 'Arquivo gerado com sucesso:', gv_filename.
+
+ENDFORM.

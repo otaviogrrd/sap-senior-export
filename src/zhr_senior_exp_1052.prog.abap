@@ -21,7 +21,7 @@ DATA: gt_file TYPE TABLE OF gy_file.
 *-Tela de Sele??o -----------------------------------------------------
 SELECTION-SCREEN BEGIN OF BLOCK blc1 WITH FRAME TITLE text-001.
 PARAMETERS: p_locl  TYPE string LOWER CASE,
-            p_serv TYPE sapb-sappfad DEFAULT '/usr/sap/tmp/'.
+            p_serv TYPE string LOWER CASE DEFAULT '/usr/sap/tmp/'.
 SELECTION-SCREEN END OF BLOCK blc1.
 *-Evento antes do processamento ---------------------------------------
 AT SELECTION-SCREEN OUTPUT.

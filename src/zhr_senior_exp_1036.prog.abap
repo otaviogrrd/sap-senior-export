@@ -46,6 +46,19 @@ TYPES: BEGIN OF ty_reason,
          mgtxt TYPE t530t-mgtxt,
        END OF ty_reason.
 
+TYPES ty_t_term   TYPE STANDARD TABLE OF ty_term WITH DEFAULT KEY.
+TYPES ty_t_pay    TYPE STANDARD TABLE OF ty_pay WITH DEFAULT KEY.
+TYPES ty_t_0008   TYPE STANDARD TABLE OF ty_0008 WITH DEFAULT KEY.
+TYPES ty_t_0016   TYPE STANDARD TABLE OF ty_0016 WITH DEFAULT KEY.
+TYPES ty_t_reason TYPE STANDARD TABLE OF ty_reason WITH DEFAULT KEY.
+TYPES ty_t_rt     TYPE STANDARD TABLE OF pc207 WITH DEFAULT KEY.
+
+DATA: gt_term   TYPE STANDARD TABLE OF ty_term,
+      gt_pay    TYPE STANDARD TABLE OF ty_pay,
+      gt_0008   TYPE STANDARD TABLE OF ty_0008,
+      gt_0016   TYPE STANDARD TABLE OF ty_0016,
+      gt_reason TYPE STANDARD TABLE OF ty_reason.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -64,12 +77,6 @@ FORM f_export.
         gv_header   TYPE string,
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
-
-  DATA: gt_term   TYPE STANDARD TABLE OF ty_term,
-        gt_pay    TYPE STANDARD TABLE OF ty_pay,
-        gt_0008   TYPE STANDARD TABLE OF ty_0008,
-        gt_0016   TYPE STANDARD TABLE OF ty_0016,
-        gt_reason TYPE STANDARD TABLE OF ty_reason.
 
   gv_filename = sy-datum && '_SENIOR_1036.csv'.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;DATDEM;CAUDEM;DATAVI;DATPAG;'
@@ -139,8 +146,7 @@ FORM f_export.
   SORT gt_0016 BY pernr begda DESCENDING.
   SORT gt_reason BY massn massg.
 
-  PERFORM f_collect_payments
-    TABLES gt_term gt_pay.
+  PERFORM f_collect_payments.
 
   IF gt_pay IS INITIAL.
     PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
@@ -206,14 +212,12 @@ FORM f_export.
                lv_sldfgt_num.
 
     PERFORM f_get_salary_base
-      TABLES gt_0008
       USING <fs_pay>-pernr <fs_pay>-datdem
       CHANGING lv_salbas_num.
 
     lv_salfav_num = lv_salbas_num.
 
     PERFORM f_get_contract_end
-      TABLES gt_0016
       USING <fs_pay>-pernr <fs_pay>-datdem
       CHANGING lv_contract_end.
 
@@ -224,7 +228,6 @@ FORM f_export.
     ENDIF.
 
     PERFORM f_get_reason_text
-      TABLES gt_reason
       USING <fs_pay>-massn <fs_pay>-massg
       CHANGING lv_reason_text.
 
@@ -339,10 +342,10 @@ FORM f_export.
 ENDFORM.
 
 FORM f_collect_payments
-  TABLES pt_term STRUCTURE ty_term
-         pt_pay  STRUCTURE ty_pay.
+  .
 
-  DATA: lt_rgdir TYPE STANDARD TABLE OF pc261,
+  DATA: lt_term  TYPE ty_t_term,
+        lt_rgdir TYPE STANDARD TABLE OF pc261,
         ls_pay   TYPE ty_pay,
         lv_pernr TYPE pernr_d,
         lv_keydt TYPE datum.
@@ -351,9 +354,10 @@ FORM f_collect_payments
                  <fs_rgdir> TYPE pc261,
                  <fs_pay>   TYPE ty_pay.
 
-  SORT pt_term BY pernr datdem.
+  lt_term = gt_term.
+  SORT lt_term BY pernr datdem.
 
-  LOOP AT pt_term ASSIGNING <fs_term>.
+  LOOP AT lt_term ASSIGNING <fs_term>.
     AT NEW pernr.
       CLEAR lt_rgdir.
       lv_pernr = <fs_term>-pernr.
@@ -397,13 +401,13 @@ FORM f_collect_payments
       ls_pay-fpbeg  = <fs_rgdir>-fpbeg.
       ls_pay-fpend  = <fs_rgdir>-fpend.
       ls_pay-seqnr  = <fs_rgdir>-seqnr.
-      APPEND ls_pay TO pt_pay.
+      APPEND ls_pay TO gt_pay.
     ENDLOOP.
   ENDLOOP.
 
-  SORT pt_pay BY pernr datdem paydt seqnr DESCENDING.
-  DELETE ADJACENT DUPLICATES FROM pt_pay COMPARING pernr datdem paydt.
-  SORT pt_pay BY pernr datdem paydt seqnr.
+  SORT gt_pay BY pernr datdem paydt seqnr DESCENDING.
+  DELETE ADJACENT DUPLICATES FROM gt_pay COMPARING pernr datdem paydt.
+  SORT gt_pay BY pernr datdem paydt seqnr.
 
   DATA: lv_last_pernr TYPE pernr_d,
         lv_last_datdem TYPE begda,
@@ -411,7 +415,7 @@ FORM f_collect_payments
 
   CLEAR: lv_last_pernr, lv_last_datdem, lv_rank.
 
-  LOOP AT pt_pay ASSIGNING <fs_pay>.
+  LOOP AT gt_pay ASSIGNING <fs_pay>.
     IF <fs_pay>-pernr <> lv_last_pernr
        OR <fs_pay>-datdem <> lv_last_datdem.
       lv_last_pernr = <fs_pay>-pernr.
@@ -505,14 +509,13 @@ FORM f_collect_rt_values
 ENDFORM.
 
 FORM f_get_salary_base
-  TABLES   pt_0008 STRUCTURE ty_0008
   USING    pv_pernr TYPE pernr_d
            pv_keydt TYPE datum
   CHANGING pv_salbas TYPE p.
 
   CLEAR pv_salbas.
 
-  LOOP AT pt_0008 ASSIGNING FIELD-SYMBOL(<fs_0008>)
+  LOOP AT gt_0008 ASSIGNING FIELD-SYMBOL(<fs_0008>)
     WHERE pernr = pv_pernr.
     IF <fs_0008>-begda <= pv_keydt
        AND <fs_0008>-endda >= pv_keydt.
@@ -524,14 +527,13 @@ FORM f_get_salary_base
 ENDFORM.
 
 FORM f_get_contract_end
-  TABLES   pt_0016 STRUCTURE ty_0016
   USING    pv_pernr TYPE pernr_d
            pv_keydt TYPE datum
   CHANGING pv_ctedt TYPE datum.
 
   CLEAR pv_ctedt.
 
-  LOOP AT pt_0016 ASSIGNING FIELD-SYMBOL(<fs_0016>)
+  LOOP AT gt_0016 ASSIGNING FIELD-SYMBOL(<fs_0016>)
     WHERE pernr = pv_pernr.
     IF <fs_0016>-begda <= pv_keydt
        AND <fs_0016>-endda >= pv_keydt.
@@ -543,14 +545,13 @@ FORM f_get_contract_end
 ENDFORM.
 
 FORM f_get_reason_text
-  TABLES   pt_reason STRUCTURE ty_reason
   USING    pv_massn TYPE massn
            pv_massg TYPE massg
   CHANGING pv_text  TYPE string.
 
   CLEAR pv_text.
 
-  READ TABLE pt_reason ASSIGNING FIELD-SYMBOL(<fs_reason>)
+  READ TABLE gt_reason ASSIGNING FIELD-SYMBOL(<fs_reason>)
     WITH KEY massn = pv_massn
              massg = pv_massg
     BINARY SEARCH.
@@ -616,14 +617,17 @@ FORM f_format_amount
   USING    pv_value TYPE any
   CHANGING pv_text  TYPE string.
 
-  DATA lv_value TYPE p LENGTH 15 DECIMALS 2.
+  DATA: lv_value TYPE p LENGTH 15 DECIMALS 2,
+        lv_text  TYPE c LENGTH 40.
 
   CLEAR pv_text.
+  CLEAR lv_text.
   lv_value = pv_value.
 
-  WRITE lv_value TO pv_text DECIMALS 2 NO-GROUPING.
-  CONDENSE pv_text NO-GAPS.
-  REPLACE ALL OCCURRENCES OF '.' IN pv_text WITH ','.
+  WRITE lv_value TO lv_text DECIMALS 2 NO-GROUPING.
+  CONDENSE lv_text NO-GAPS.
+  REPLACE ALL OCCURRENCES OF '.' IN lv_text WITH ','.
+  pv_text = lv_text.
 
 ENDFORM.
 

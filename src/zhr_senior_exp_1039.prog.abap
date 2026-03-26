@@ -23,6 +23,12 @@ TYPES: BEGIN OF ty_calc,
          codcal TYPE n LENGTH 4,
        END OF ty_calc.
 
+TYPES ty_t_asg  TYPE STANDARD TABLE OF ty_asg WITH DEFAULT KEY.
+TYPES ty_t_calc TYPE STANDARD TABLE OF ty_calc WITH DEFAULT KEY.
+
+DATA: gt_asg  TYPE STANDARD TABLE OF ty_asg,
+      gt_calc TYPE STANDARD TABLE OF ty_calc.
+
 AT SELECTION-SCREEN ON VALUE-REQUEST FOR p_locl.
   PERFORM f_selecionar_arquivo IN PROGRAM zhr_export_senior
     CHANGING p_locl.
@@ -41,9 +47,6 @@ FORM f_export.
         gv_header   TYPE string,
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
-
-  DATA: gt_asg  TYPE STANDARD TABLE OF ty_asg,
-        gt_calc TYPE STANDARD TABLE OF ty_calc.
 
   gv_filename = sy-datum && '_SENIOR_1039.csv'.
   gv_header = 'NUMEMP;CODCAL;TIPCAL;PERREF;DATPAG;INICMP;FIMCMP;'
@@ -64,8 +67,7 @@ FORM f_export.
 
   SORT gt_asg BY pernr begda DESCENDING endda DESCENDING.
 
-  PERFORM f_collect_calculations
-    TABLES gt_asg gt_calc.
+  PERFORM f_collect_calculations.
 
   LOOP AT gt_calc ASSIGNING FIELD-SYMBOL(<fs_calc>).
 
@@ -128,8 +130,7 @@ FORM f_export.
 ENDFORM.
 
 FORM f_collect_calculations
-  TABLES pt_asg  STRUCTURE ty_asg
-         pt_calc STRUCTURE ty_calc.
+  .
 
   DATA: lt_pernr TYPE SORTED TABLE OF pernr_d WITH UNIQUE KEY table_line,
         lt_rgdir TYPE STANDARD TABLE OF pc261,
@@ -141,7 +142,7 @@ FORM f_collect_calculations
         lv_codcal TYPE i,
         lv_bukrs  TYPE bukrs.
 
-  LOOP AT pt_asg ASSIGNING FIELD-SYMBOL(<fs_asg>).
+  LOOP AT gt_asg ASSIGNING FIELD-SYMBOL(<fs_asg>).
     INSERT <fs_asg>-pernr INTO TABLE lt_pernr.
   ENDLOOP.
 
@@ -174,7 +175,6 @@ FORM f_collect_calculations
       ENDIF.
 
       PERFORM f_get_assignment
-        TABLES pt_asg
         USING lv_pernr lv_keydt
         CHANGING ls_asg.
 
@@ -197,17 +197,17 @@ FORM f_collect_calculations
       ls_calc-paydt  = <fs_rgdir>-paydt.
       ls_calc-fpbeg  = <fs_rgdir>-fpbeg.
       ls_calc-fpend  = <fs_rgdir>-fpend.
-      APPEND ls_calc TO pt_calc.
+      APPEND ls_calc TO gt_calc.
 
     ENDLOOP.
   ENDLOOP.
 
-  SORT pt_calc BY bukrs tipcal perref paydt fpbeg fpend.
-  DELETE ADJACENT DUPLICATES FROM pt_calc COMPARING bukrs tipcal perref paydt fpbeg fpend.
+  SORT gt_calc BY bukrs tipcal perref paydt fpbeg fpend.
+  DELETE ADJACENT DUPLICATES FROM gt_calc COMPARING bukrs tipcal perref paydt fpbeg fpend.
 
   CLEAR: lv_bukrs, lv_codcal.
 
-  LOOP AT pt_calc ASSIGNING FIELD-SYMBOL(<fs_calc>).
+  LOOP AT gt_calc ASSIGNING FIELD-SYMBOL(<fs_calc>).
     IF <fs_calc>-bukrs <> lv_bukrs.
       lv_bukrs = <fs_calc>-bukrs.
       CLEAR lv_codcal.
@@ -220,14 +220,13 @@ FORM f_collect_calculations
 ENDFORM.
 
 FORM f_get_assignment
-  TABLES pt_asg STRUCTURE ty_asg
   USING    pv_pernr TYPE pernr_d
            pv_keydt TYPE datum
   CHANGING ps_asg   TYPE ty_asg.
 
   CLEAR ps_asg.
 
-  LOOP AT pt_asg INTO DATA(ls_asg) WHERE pernr = pv_pernr.
+  LOOP AT gt_asg INTO DATA(ls_asg) WHERE pernr = pv_pernr.
     IF pv_keydt IS INITIAL
        OR ( ls_asg-begda <= pv_keydt AND ls_asg-endda >= pv_keydt ).
       ps_asg = ls_asg.
