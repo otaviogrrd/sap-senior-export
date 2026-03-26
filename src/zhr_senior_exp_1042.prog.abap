@@ -156,9 +156,13 @@ FORM f_export.
       USING <fs_pay>-persg
       CHANGING lv_tipcol.
 
-    DATA(lv_numemp) = <fs_pay>-bukrs.
-    DATA(lv_numcad) = |{ <fs_pay>-pernr ALPHA = OUT }|.
-    DATA(lv_coddep) = '1'.
+    DATA: lv_numemp TYPE string,
+          lv_numcad TYPE string,
+          lv_coddep TYPE string.
+
+    lv_numemp = <fs_pay>-bukrs.
+    lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
+    lv_coddep = '1'.
 
     READ TABLE gt_dep ASSIGNING FIELD-SYMBOL(<fs_dep>)
       WITH KEY pernr = <fs_pay>-pernr
@@ -219,7 +223,8 @@ FORM f_export.
       PERFORM f_format_amount USING lv_valpen_num CHANGING lv_baspen.
       PERFORM f_format_amount USING lv_valpen_num CHANGING lv_valpen.
 
-      DATA(lv_seqpag) = |{ lv_seqpag_i }|.
+      DATA lv_seqpag TYPE string.
+      lv_seqpag = |{ lv_seqpag_i }|.
 
       PERFORM f_fit_field USING lv_numemp 4 CHANGING lv_numemp.
       PERFORM f_fit_field USING lv_tipcol 1 CHANGING lv_tipcol.

@@ -117,13 +117,20 @@ FORM f_export.
       USING <fs_pay>-persg
       CHANGING lv_tipcol.
 
-    DATA(lv_numemp) = <fs_pay>-bukrs.
-    DATA(lv_numcad) = |{ <fs_pay>-pernr ALPHA = OUT }|.
-    DATA(lv_codcal) = |{ <fs_calc>-codcal }|.
-    DATA(lv_tabeve) = '1'.
-    DATA(lv_tipcal) = <fs_pay>-tipcal.
-    DATA(lv_refref) = <fs_pay>-perref.
-    DATA(lv_datpag) = ||.
+    DATA: lv_numemp TYPE string,
+          lv_numcad TYPE string,
+          lv_codcal TYPE string,
+          lv_tabeve TYPE string,
+          lv_tipcal TYPE string,
+          lv_refref TYPE string,
+          lv_datpag TYPE string.
+
+    lv_numemp = <fs_pay>-bukrs.
+    lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
+    lv_codcal = |{ <fs_calc>-codcal }|.
+    lv_tabeve = '1'.
+    lv_tipcal = <fs_pay>-tipcal.
+    lv_refref = <fs_pay>-perref.
 
     PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.
 

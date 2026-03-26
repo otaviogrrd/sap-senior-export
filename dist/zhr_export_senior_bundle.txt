@@ -8410,13 +8410,20 @@ FORM f_export.
       USING <fs_pay>-persg
       CHANGING lv_tipcol.
 
-    DATA(lv_numemp) = <fs_pay>-bukrs.
-    DATA(lv_numcad) = |{ <fs_pay>-pernr ALPHA = OUT }|.
-    DATA(lv_codcal) = |{ <fs_calc>-codcal }|.
-    DATA(lv_tabeve) = '1'.
-    DATA(lv_tipcal) = <fs_pay>-tipcal.
-    DATA(lv_refref) = <fs_pay>-perref.
-    DATA(lv_datpag) = ||.
+    DATA: lv_numemp TYPE string,
+          lv_numcad TYPE string,
+          lv_codcal TYPE string,
+          lv_tabeve TYPE string,
+          lv_tipcal TYPE string,
+          lv_refref TYPE string,
+          lv_datpag TYPE string.
+
+    lv_numemp = <fs_pay>-bukrs.
+    lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
+    lv_codcal = |{ <fs_calc>-codcal }|.
+    lv_tabeve = '1'.
+    lv_tipcal = <fs_pay>-tipcal.
+    lv_refref = <fs_pay>-perref.
 
     PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.
 
@@ -8900,26 +8907,33 @@ FORM f_export.
     lv_basirf_num = lv_renbru_num.
     lv_valliq_num = lv_renbru_num - lv_outdes_num.
 
-    DATA(lv_numemp) = <fs_pay>-bukrs.
-    DATA(lv_codfil) = <fs_pay>-btrtl.
-    DATA(lv_cmppte) = ||.
-    DATA(lv_numcad) = |{ <fs_pay>-pernr ALPHA = OUT }|.
-    DATA(lv_seqpte) = |{ lv_seqpte_i }|.
-    DATA(lv_srvter) = 'PAGAMENTO DE TERCEIRO'.
-    DATA(lv_nrorpa) = ||.
-    DATA(lv_pergrp) = ||.
-    DATA(lv_codret) = ||.
-    DATA(lv_datpag) = ||.
-    DATA(lv_renbru) = ||.
-    DATA(lv_outdes) = ||.
-    DATA(lv_basins) = ||.
-    DATA(lv_dedins) = ||.
-    DATA(lv_basirf) = ||.
-    DATA(lv_irfret) = ||.
-    DATA(lv_valiss) = ||.
-    DATA(lv_codccu) = <fs_pay>-kostl.
-    DATA(lv_periss) = ||.
-    DATA(lv_valliq) = ||.
+    DATA: lv_numemp TYPE string,
+          lv_codfil TYPE string,
+          lv_cmppte TYPE string,
+          lv_numcad TYPE string,
+          lv_seqpte TYPE string,
+          lv_srvter TYPE string,
+          lv_nrorpa TYPE string,
+          lv_pergrp TYPE string,
+          lv_codret TYPE string,
+          lv_datpag TYPE string,
+          lv_renbru TYPE string,
+          lv_outdes TYPE string,
+          lv_basins TYPE string,
+          lv_dedins TYPE string,
+          lv_basirf TYPE string,
+          lv_irfret TYPE string,
+          lv_valiss TYPE string,
+          lv_codccu TYPE string,
+          lv_periss TYPE string,
+          lv_valliq TYPE string.
+
+    lv_numemp = <fs_pay>-bukrs.
+    lv_codfil = <fs_pay>-btrtl.
+    lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
+    lv_seqpte = |{ lv_seqpte_i }|.
+    lv_srvter = 'PAGAMENTO DE TERCEIRO'.
+    lv_codccu = <fs_pay>-kostl.
 
     PERFORM f_format_period USING <fs_pay>-paydt <fs_pay>-fpend CHANGING lv_cmppte.
     PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.
@@ -9351,9 +9365,13 @@ FORM f_export.
       USING <fs_pay>-persg
       CHANGING lv_tipcol.
 
-    DATA(lv_numemp) = <fs_pay>-bukrs.
-    DATA(lv_numcad) = |{ <fs_pay>-pernr ALPHA = OUT }|.
-    DATA(lv_coddep) = '1'.
+    DATA: lv_numemp TYPE string,
+          lv_numcad TYPE string,
+          lv_coddep TYPE string.
+
+    lv_numemp = <fs_pay>-bukrs.
+    lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
+    lv_coddep = '1'.
 
     READ TABLE gt_dep ASSIGNING FIELD-SYMBOL(<fs_dep>)
       WITH KEY pernr = <fs_pay>-pernr
@@ -9414,7 +9432,8 @@ FORM f_export.
       PERFORM f_format_amount USING lv_valpen_num CHANGING lv_baspen.
       PERFORM f_format_amount USING lv_valpen_num CHANGING lv_valpen.
 
-      DATA(lv_seqpag) = |{ lv_seqpag_i }|.
+      DATA lv_seqpag TYPE string.
+      lv_seqpag = |{ lv_seqpag_i }|.
 
       PERFORM f_fit_field USING lv_numemp 4 CHANGING lv_numemp.
       PERFORM f_fit_field USING lv_tipcol 1 CHANGING lv_tipcol.
