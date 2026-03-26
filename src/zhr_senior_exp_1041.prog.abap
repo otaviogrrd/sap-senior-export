@@ -1,7 +1,7 @@
 REPORT zhr_senior_exp_1041.
 
 PARAMETERS: p_locl TYPE string LOWER CASE,
-            p_serv TYPE string LOWER CASE.
+            p_serv TYPE string LOWER CASE DEFAULT '/usr/sap/tmp/'.
 
 TYPES: BEGIN OF ty_asg,
          pernr TYPE pernr_d,
@@ -166,7 +166,8 @@ FORM f_export.
     lv_srvter = 'PAGAMENTO DE TERCEIRO'.
     lv_codccu = <fs_pay>-kostl.
 
-    PERFORM f_format_period USING <fs_pay>-paydt <fs_pay>-fpend CHANGING lv_cmppte.
+    PERFORM f_format_period USING <fs_pay>-paydt <fs_pay>-fpend CHANGING
+lv_cmppte.
     PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.
     PERFORM f_format_amount USING lv_renbru_num CHANGING lv_renbru.
     PERFORM f_format_amount USING lv_outdes_num CHANGING lv_outdes.
@@ -229,7 +230,8 @@ FORM f_export.
 
   ENDLOOP.
 
-  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING
+gv_filename CHANGING gt_file p_locl p_serv.
 
   WRITE: / 'Layout 1041 gerado:', gv_filename.
 
@@ -238,7 +240,8 @@ ENDFORM.
 FORM f_collect_payments
   .
 
-  DATA: lt_pernr TYPE SORTED TABLE OF pernr_d WITH UNIQUE KEY table_line,
+  DATA: lt_pernr TYPE SORTED TABLE OF pernr_d WITH UNIQUE KEY
+table_line,
         lt_rgdir TYPE STANDARD TABLE OF pc261,
         ls_asg   TYPE ty_asg,
         ls_pay   TYPE ty_pay,
@@ -249,19 +252,30 @@ FORM f_collect_payments
   ENDLOOP.
 
   LOOP AT lt_pernr INTO DATA(lv_pernr).
-    CLEAR lt_rgdir.
+    FREE lt_rgdir[].
 
-    CALL FUNCTION 'CU_READ_RGDIR'
-      EXPORTING
-        persnr          = lv_pernr
-      TABLES
-        in_rgdir        = lt_rgdir
-      EXCEPTIONS
-        no_record_found = 1
-        OTHERS          = 2.
+*    CALL FUNCTION 'CU_READ_RGDIR'
+*      EXPORTING
+*        persnr          = lv_pernr
+*      TABLES
+*        in_rgdir        = lt_rgdir
+*      EXCEPTIONS
+*        no_record_found = 1
+*        OTHERS          = 2.
+*
+*    IF sy-subrc <> 0.
+*      CONTINUE.
+*    ENDIF.
 
-    IF sy-subrc <> 0.
-      CONTINUE.
+    DATA(lo_payroll) = NEW cl_hr_br_read_payroll( iv_pernr = lv_pernr ).
+    IF lo_payroll IS BOUND.
+      lo_payroll->get_rgdir( EXPORTING
+            iv_begda       = '19000101'
+            iv_endda       = '99991231'
+            iv_srtza       = 'A'
+            iv_reorg_rgdir = abap_true
+          IMPORTING
+            et_rgdir       = lt_rgdir ).
     ENDIF.
 
     LOOP AT lt_rgdir ASSIGNING FIELD-SYMBOL(<fs_rgdir>)
@@ -332,33 +346,51 @@ FORM f_read_payroll_result
 
   CLEAR pt_rt[].
 
-  CALL FUNCTION 'PYXX_READ_PAYROLL_RESULT'
-    EXPORTING
-      clusterid                    = 'RX'
-      employeenumber               = pv_pernr
-      sequencenumber               = pv_seqnr
-      read_only_international      = 'X'
-    CHANGING
-      payroll_result               = ls_payroll_result
-    EXCEPTIONS
-      illegal_isocode_or_clusterid = 1
-      error_generating_import      = 2
-      import_mismatch_error        = 3
-      subpool_dir_full             = 4
-      no_read_authority            = 5
-      no_record_found              = 6
-      versions_do_not_match        = 7
-      error_reading_archive        = 8
-      error_reading_relid          = 9
-      OTHERS                       = 10.
+*  CALL FUNCTION 'PYXX_READ_PAYROLL_RESULT'
+*    EXPORTING
+*      clusterid                    = 'RX'
+*      employeenumber               = pv_pernr
+*      sequencenumber               = pv_seqnr
+*      read_only_international      = 'X'
+*    CHANGING
+*      payroll_result               = ls_payroll_result
+*    EXCEPTIONS
+*      illegal_isocode_or_clusterid = 1
+*      error_generating_import      = 2
+*      import_mismatch_error        = 3
+*      subpool_dir_full             = 4
+*      no_read_authority            = 5
+*      no_record_found              = 6
+*      versions_do_not_match        = 7
+*      error_reading_archive        = 8
+*      error_reading_relid          = 9
+*      OTHERS                       = 10.
+*
+*  IF sy-subrc <> 0.
+*    RETURN.
+*  ENDIF.
+*
+*  ASSIGN ls_payroll_result-inter-rt[] TO <lt_rt>.
+*  IF <lt_rt> IS ASSIGNED.
+*    pt_rt[] = <lt_rt>[].
+*  ENDIF.
 
-  IF sy-subrc <> 0.
-    RETURN.
-  ENDIF.
+  DATA: ls_rgdir TYPE pc261.
 
-  ASSIGN ls_payroll_result-inter-rt[] TO <lt_rt>.
-  IF <lt_rt> IS ASSIGNED.
-    pt_rt[] = <lt_rt>[].
+  DATA(lo_payroll) = NEW cl_hr_br_read_payroll( iv_pernr = pv_pernr ).
+  IF lo_payroll IS BOUND.
+    SELECT SINGLE * INTO @DATA(ls_hrpy_rgdir)
+      FROM hrpy_rgdir
+     WHERE pernr EQ @pv_pernr
+       AND seqnr EQ @pv_seqnr.
+    MOVE-CORRESPONDING ls_hrpy_rgdir TO ls_rgdir.
+    lo_payroll->get_pay_result(
+     EXPORTING
+       is_rgdir        = ls_rgdir
+     IMPORTING
+       es_paybr_result = DATA(ls_result) ).
+
+    pt_rt[] = ls_result-inter-rt[].
   ENDIF.
 
 ENDFORM.
@@ -426,8 +458,10 @@ FORM f_fit_field
 
   pv_text = |{ pv_value }|.
   REPLACE ALL OCCURRENCES OF ';' IN pv_text WITH ','.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN pv_text WITH space.
-  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN pv_text WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>cr_lf IN pv_text
+WITH space.
+  REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN pv_text
+WITH space.
   CONDENSE pv_text.
 
   IF pv_length > 0

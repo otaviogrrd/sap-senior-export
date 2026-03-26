@@ -183,17 +183,20 @@ FORM f_collect_payments
 
   LOOP AT lt_term ASSIGNING <fs_term>.
     AT NEW pernr.
-      CLEAR lt_rgdir.
+      FREE lt_rgdir[].
       lv_pernr = <fs_term>-pernr.
 
-      CALL FUNCTION 'CU_READ_RGDIR'
-        EXPORTING
-          persnr          = lv_pernr
-        TABLES
-          in_rgdir        = lt_rgdir
-        EXCEPTIONS
-          no_record_found = 1
-          OTHERS          = 2.
+      DATA(lo_payroll) = NEW cl_hr_br_read_payroll( iv_pernr = lv_pernr ).
+      IF lo_payroll IS BOUND.
+        lo_payroll->get_rgdir(
+          EXPORTING
+            iv_begda       = '19000101'
+            iv_endda       = '99991231'
+            iv_srtza       = 'A'
+            iv_reorg_rgdir = abap_true
+          IMPORTING
+            et_rgdir       = lt_rgdir ).
+      ENDIF.
     ENDAT.
 
     LOOP AT lt_rgdir ASSIGNING <fs_rgdir>
@@ -208,6 +211,9 @@ FORM f_collect_payments
       lv_keydt = <fs_rgdir>-paydt.
       IF lv_keydt IS INITIAL.
         lv_keydt = <fs_rgdir>-fpend.
+      ENDIF.
+      IF lv_keydt IS INITIAL.
+        lv_keydt = <fs_rgdir>-fpbeg.
       ENDIF.
 
       IF lv_keydt < <fs_term>-datdem.
@@ -257,40 +263,33 @@ FORM f_read_payroll_result
            pv_seqnr TYPE pc261-seqnr
   CHANGING pt_rt    TYPE STANDARD TABLE.
 
-  DATA ls_payroll_result TYPE pay99_result.
-
-  FIELD-SYMBOLS <lt_rt> TYPE STANDARD TABLE.
+  DATA ls_rgdir TYPE pc261.
 
   CLEAR pt_rt[].
 
-  CALL FUNCTION 'PYXX_READ_PAYROLL_RESULT'
-    EXPORTING
-      clusterid                    = 'RX'
-      employeenumber               = pv_pernr
-      sequencenumber               = pv_seqnr
-      read_only_international      = 'X'
-    CHANGING
-      payroll_result               = ls_payroll_result
-    EXCEPTIONS
-      illegal_isocode_or_clusterid = 1
-      error_generating_import      = 2
-      import_mismatch_error        = 3
-      subpool_dir_full             = 4
-      no_read_authority            = 5
-      no_record_found              = 6
-      versions_do_not_match        = 7
-      error_reading_archive        = 8
-      error_reading_relid          = 9
-      OTHERS                       = 10.
+  DATA(lo_payroll) = NEW cl_hr_br_read_payroll( iv_pernr = pv_pernr ).
+  IF lo_payroll IS NOT BOUND.
+    RETURN.
+  ENDIF.
 
+  SELECT SINGLE *
+    INTO @DATA(ls_hrpy_rgdir)
+    FROM hrpy_rgdir
+   WHERE pernr = @pv_pernr
+     AND seqnr = @pv_seqnr.
   IF sy-subrc <> 0.
     RETURN.
   ENDIF.
 
-  ASSIGN ls_payroll_result-inter-rt[] TO <lt_rt>.
-  IF <lt_rt> IS ASSIGNED.
-    pt_rt[] = <lt_rt>[].
-  ENDIF.
+  MOVE-CORRESPONDING ls_hrpy_rgdir TO ls_rgdir.
+
+  lo_payroll->get_pay_result(
+    EXPORTING
+      is_rgdir        = ls_rgdir
+    IMPORTING
+      es_paybr_result = DATA(ls_result) ).
+
+  pt_rt[] = ls_result-inter-rt[].
 
 ENDFORM.
 
