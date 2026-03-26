@@ -191,8 +191,13 @@ FORM f_export.
         CHANGING lv_datext.
     ENDIF.
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_ccu>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_ccu>-bukrs && ';' &&
+      lv_numemp      && ';' &&
       lv_codccu      && ';' &&
       lv_nomccu      && ';' &&
       lv_datcri      && ';' &&

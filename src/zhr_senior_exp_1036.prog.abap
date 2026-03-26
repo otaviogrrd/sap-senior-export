@@ -267,6 +267,9 @@ FORM f_export.
       CHANGING lv_caudem.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
 
     PERFORM f_format_amount USING lv_qtdind_num CHANGING lv_qtdind.

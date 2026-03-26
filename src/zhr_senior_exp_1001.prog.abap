@@ -102,8 +102,13 @@ FORM f_exportar_dados.
 
     ENDIF.
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_branch>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-          <fs_branch>-bukrs            && ';'
+          lv_numemp                    && ';'
         && <fs_branch>-branch          && ';'
         && branch_record-name          && ';'
         && branch_record-name          && ';'

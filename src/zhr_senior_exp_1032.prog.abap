@@ -143,6 +143,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_quota>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_quota>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_quota>-pernr ALPHA = OUT }|.
 
     PERFORM f_format_date USING <fs_quota>-begda CHANGING lv_iniper.

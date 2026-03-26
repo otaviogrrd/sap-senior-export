@@ -185,6 +185,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_master>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_master>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_master>-pernr ALPHA = OUT }|.
     lv_tipfer_txt = <fs_master>-tipfer.
     lv_opc13s = 'N'.

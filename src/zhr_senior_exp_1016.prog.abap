@@ -132,6 +132,9 @@ FORM f_export.
       CHANGING lv_datnot.
 
     lv_numemp = <fs_hist>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_hist>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_hist>-pernr ALPHA = OUT }|.
     lv_notfic = <fs_hist>-mgtxt.
 

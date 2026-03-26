@@ -164,8 +164,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_dep>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_dep>-bukrs      && ';' && " NUMEMP
+      lv_numemp           && ';' && " NUMEMP
       lv_tipcol           && ';' && " TIPCOL
       <fs_dep>-pernr      && ';' && " NUMCAD
       lv_coddep           && ';' && " CODDEP

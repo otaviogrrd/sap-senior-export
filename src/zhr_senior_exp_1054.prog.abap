@@ -112,14 +112,18 @@ FORM zf_process_registration USING us_dados TYPE any.
   DATA: lv_persg  TYPE persg,
         lv_tipcol TYPE c LENGTH 1,
         lv_dats   TYPE d,
-        lv_datopc TYPE char10.
+        lv_datopc TYPE char10,
+        lv_numemp TYPE string.
 
   APPEND INITIAL LINE TO gt_file ASSIGNING FIELD-SYMBOL(<lf_file>).
 
   " C?digo da Empresa
   ASSIGN COMPONENT 'BUKRS' OF STRUCTURE us_dados
     TO FIELD-SYMBOL(<lf_value>).
-  <lf_file>-numemp = <lf_value>.
+  PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+    USING <lf_value>
+    CHANGING lv_numemp.
+  <lf_file>-numemp = lv_numemp.
 
   " Tipo Colaborador
   ASSIGN COMPONENT 'PERSG' OF STRUCTURE us_dados TO <lf_value>.

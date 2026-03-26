@@ -109,6 +109,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_tabeve = '1'.
     PERFORM f_format_date USING <fs_pay>-paydt CHANGING lv_datpag.

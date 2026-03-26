@@ -143,6 +143,9 @@ FORM f_export.
       CHANGING lv_tipcol.
 
     lv_numemp = <fs_prog>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_prog>-bukrs
+      CHANGING lv_numemp.
     lv_numcad = |{ <fs_prog>-pernr ALPHA = OUT }|.
     lv_prg13s = 'N'.
 

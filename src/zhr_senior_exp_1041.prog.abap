@@ -157,6 +157,9 @@ FORM f_export.
           lv_valliq TYPE string.
 
     lv_numemp = <fs_pay>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_pay>-bukrs
+      CHANGING lv_numemp.
     lv_codfil = <fs_pay>-btrtl.
     lv_numcad = |{ <fs_pay>-pernr ALPHA = OUT }|.
     lv_seqpte = |{ lv_seqpte_i }|.

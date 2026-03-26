@@ -20,7 +20,8 @@ FORM f_exportar_dados.
   DATA: gv_filename TYPE string,
         gv_header   TYPE string,
         gv_line     TYPE string,
-        gt_file     TYPE STANDARD TABLE OF string.
+        gt_file     TYPE STANDARD TABLE OF string,
+        gv_numemp   TYPE string.
 
   gv_filename = sy-datum && '_SENIOR_1000.csv'.
   gv_header = 'NUMEMP;NOMEMP;APEEMP;DDITEL;DDDTEL;NUMTEL'.
@@ -36,9 +37,15 @@ FORM f_exportar_dados.
 
   APPEND gv_header TO gt_file.
 
+  SORT tl_t001 BY bukrs.
+
   LOOP AT tl_t001 ASSIGNING FIELD-SYMBOL(<fs_t001>).
 
-    gv_line = <fs_t001>-bukrs && ';' &&
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_t001>-bukrs
+      CHANGING gv_numemp.
+
+    gv_line = gv_numemp && ';' &&
               <fs_t001>-butxt && ';' &&
               <fs_t001>-butxt && ';' &&
               '00' && ';' &&

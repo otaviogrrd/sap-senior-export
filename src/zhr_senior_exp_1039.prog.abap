@@ -83,6 +83,9 @@ FORM f_export.
           lv_fimapu TYPE string.
 
     lv_numemp = <fs_calc>-bukrs.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_calc>-bukrs
+      CHANGING lv_numemp.
     lv_codcal = <fs_calc>-codcal.
     lv_tipcal = <fs_calc>-tipcal.
     lv_perref = <fs_calc>-perref.

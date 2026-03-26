@@ -115,8 +115,13 @@ FORM f_exportar_dados.
 * Linha
 *---------------------------------------------------------------------*
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_afast>-bukrs
+      CHANGING lv_numemp.
+
     gv_line =
-      <fs_afast>-bukrs     && ';' && " ENDUZ
+      lv_numemp            && ';' && " ENDUZ
       lv_tipcol            && ';' && " TIPCOL
       <fs_afast>-pernr     && ';' && " NUMCAD
       lv_datafa            && ';' && " DATAFA

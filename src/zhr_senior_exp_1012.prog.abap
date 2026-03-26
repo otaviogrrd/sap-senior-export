@@ -40,7 +40,7 @@ FORM f_exportar_dados.
   && 'DATAPO;OUTCON;OUTTET;DEFFIS;RACCOR;CODDEF;'
   && 'CATSEF;MOVSEF;BENREA;DOCEST;TPCTBA;APOIDA;DATCHE;'
   && 'RECADI;REC13S;LISRAI;EMICAR;CONRHO;PERPAG;'
-  && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF;'.
+  && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF'.
 
 *---------------------------------------------------------------------*
 * Sele??o de colaboradores
@@ -326,9 +326,13 @@ WHERE p1~begda <= @sy-datum
       lv_deffis = 'S'.
     ENDIF.
 
+    DATA(lv_numemp) = ||.
+    PERFORM f_map_numemp IN PROGRAM zhr_export_senior
+      USING <fs_emp>-bukrs
+      CHANGING lv_numemp.
 
     gv_line =
-      <fs_emp>-bukrs      && ';' && " NUMEMP
+      lv_numemp           && ';' && " NUMEMP
       lv_tipcol           && ';' && " TIPCOL
       <fs_emp>-pernr      && ';' && " NUMCAD
       <fs_emp>-cname      && ';' && " NOMFUN

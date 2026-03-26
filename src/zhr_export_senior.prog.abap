@@ -37,6 +37,35 @@ FORM zf_search_help_directory CHANGING p_serv.
 
 ENDFORM.
 
+FORM f_map_numemp
+  USING    p_bukrs TYPE bukrs
+  CHANGING p_numemp TYPE string.
+
+  CLEAR p_numemp.
+
+  CASE p_bukrs.
+    WHEN 'BR00'. p_numemp = '0001'.
+    WHEN 'BR01'. p_numemp = '0002'.
+    WHEN 'BR02'. p_numemp = '0003'.
+    WHEN 'BR03'. p_numemp = '0004'.
+    WHEN 'BR04'. p_numemp = '0005'.
+    WHEN 'BR05'. p_numemp = '0006'.
+    WHEN 'BR06'. p_numemp = '0007'.
+    WHEN 'BR07'. p_numemp = '0008'.
+    WHEN 'BR08'. p_numemp = '0009'.
+    WHEN 'BR09'. p_numemp = '0010'.
+    WHEN 'BR10'. p_numemp = '0011'.
+    WHEN 'BR11'. p_numemp = '0012'.
+    WHEN 'BR12'. p_numemp = '0013'.
+    WHEN 'BR13'. p_numemp = '0014'.
+    WHEN 'BR14'. p_numemp = '0015'.
+    WHEN 'BR15'. p_numemp = '0016'.
+    WHEN OTHERS.
+      p_numemp = p_bukrs.
+  ENDCASE.
+
+ENDFORM.
+
 ************************************************************************
 * Convers??o TIPCOL (LTipCol)
 ************************************************************************
