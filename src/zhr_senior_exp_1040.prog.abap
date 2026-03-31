@@ -59,10 +59,11 @@ FORM f_export.
 
   DATA: gv_filename TYPE string,
         gv_header   TYPE string,
+        gv_count    TYPE numc10,
         gv_line     TYPE string,
         gt_file     TYPE STANDARD TABLE OF string.
 
-  gv_filename = sy-datum && '_SENIOR_1040.csv'.
+  gv_filename = sy-datum && '_SENIOR_1040_' && gv_count &&'.csv'.
   gv_header = 'NUMEMP;TIPCOL;NUMCAD;CODCAL;TABEVE;CODEVE;REFEVE;'
   && 'VALEVE;TIPCAL;REFREF;DATPAG'.
 
@@ -189,10 +190,26 @@ FORM f_export.
       APPEND gv_line TO gt_file.
 
     ENDLOOP.
+    if lines( gt_file ) gt 100000.
+
+      gv_filename = sy-datum && '_SENIOR_1040_' && gv_count &&'.csv'.
+
+      PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+
+      clear gt_file.
+
+      add 1 to gv_count.
+
+      APPEND gv_header TO gt_file.
+
+    endif.
 
   ENDLOOP.
 
-  PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+  if lines( gt_file ) gt 1.
+    gv_filename = sy-datum && '_SENIOR_1040_' && gv_count &&'.csv'.
+    PERFORM f_salvar_arquivo IN PROGRAM zhr_export_senior USING gv_filename CHANGING gt_file p_locl p_serv.
+  endif.
 
   WRITE: / 'Layout 1040 gerado:', gv_filename.
 
@@ -214,19 +231,18 @@ FORM f_collect_payments
   ENDLOOP.
 
   LOOP AT lt_pernr INTO DATA(lv_pernr).
-    CLEAR lt_rgdir.
+    FREE lt_rgdir[].
 
-    CALL FUNCTION 'CU_READ_RGDIR'
-      EXPORTING
-        persnr          = lv_pernr
-      TABLES
-        in_rgdir        = lt_rgdir
-      EXCEPTIONS
-        no_record_found = 1
-        OTHERS          = 2.
-
-    IF sy-subrc <> 0.
-      CONTINUE.
+    DATA(lo_payroll) = NEW cl_hr_br_read_payroll( iv_pernr = lv_pernr ).
+    IF lo_payroll IS BOUND.
+      lo_payroll->get_rgdir(
+        EXPORTING
+          iv_begda       = '19000101'
+          iv_endda       = '99991231'
+          iv_srtza       = 'A'
+          iv_reorg_rgdir = abap_true
+        IMPORTING
+          et_rgdir       = lt_rgdir ).
     ENDIF.
 
     LOOP AT lt_rgdir ASSIGNING FIELD-SYMBOL(<fs_rgdir>)
@@ -367,40 +383,33 @@ FORM f_read_payroll_result
            pv_seqnr TYPE pc261-seqnr
   CHANGING pt_rt    TYPE STANDARD TABLE.
 
-  DATA ls_payroll_result TYPE pay99_result.
-
-  FIELD-SYMBOLS <lt_rt> TYPE STANDARD TABLE.
+  DATA ls_rgdir TYPE pc261.
 
   CLEAR pt_rt[].
 
-  CALL FUNCTION 'PYXX_READ_PAYROLL_RESULT'
-    EXPORTING
-      clusterid                    = 'RX'
-      employeenumber               = pv_pernr
-      sequencenumber               = pv_seqnr
-      read_only_international      = 'X'
-    CHANGING
-      payroll_result               = ls_payroll_result
-    EXCEPTIONS
-      illegal_isocode_or_clusterid = 1
-      error_generating_import      = 2
-      import_mismatch_error        = 3
-      subpool_dir_full             = 4
-      no_read_authority            = 5
-      no_record_found              = 6
-      versions_do_not_match        = 7
-      error_reading_archive        = 8
-      error_reading_relid          = 9
-      OTHERS                       = 10.
+  DATA(lo_payroll) = NEW cl_hr_br_read_payroll( iv_pernr = pv_pernr ).
+  IF lo_payroll IS NOT BOUND.
+    RETURN.
+  ENDIF.
 
+  SELECT SINGLE *
+    INTO @DATA(ls_hrpy_rgdir)
+    FROM hrpy_rgdir
+   WHERE pernr = @pv_pernr
+     AND seqnr = @pv_seqnr.
   IF sy-subrc <> 0.
     RETURN.
   ENDIF.
 
-  ASSIGN ls_payroll_result-inter-rt[] TO <lt_rt>.
-  IF <lt_rt> IS ASSIGNED.
-    pt_rt[] = <lt_rt>[].
-  ENDIF.
+  MOVE-CORRESPONDING ls_hrpy_rgdir TO ls_rgdir.
+
+  lo_payroll->get_pay_result(
+    EXPORTING
+      is_rgdir        = ls_rgdir
+    IMPORTING
+      es_paybr_result = DATA(ls_result) ).
+
+  pt_rt[] = ls_result-inter-rt[].
 
 ENDFORM.
 
