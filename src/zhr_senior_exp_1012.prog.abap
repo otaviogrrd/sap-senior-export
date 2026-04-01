@@ -40,7 +40,8 @@ FORM f_exportar_dados.
   && 'DATAPO;OUTCON;OUTTET;DEFFIS;RACCOR;CODDEF;'
   && 'CATSEF;MOVSEF;BENREA;DOCEST;TPCTBA;APOIDA;DATCHE;'
   && 'RECADI;REC13S;LISRAI;EMICAR;CONRHO;PERPAG;'
-  && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF'.
+  && 'TIPOPC;DATOPC;CONFGT;DIGCAR;TPCPIX;CHVPIX;COTDEF;'
+  && 'SITPRO;EMPRESA;FILIAL'.
 
 *---------------------------------------------------------------------*
 * Sele??o de colaboradores
@@ -49,6 +50,7 @@ FORM f_exportar_dados.
   SELECT
     p1~pernr,
     p1~bukrs,
+    p1~btrtl,
     p1~persg,
     p2~cname,
     p2~rufnm,
@@ -65,11 +67,17 @@ FORM f_exportar_dados.
     p398~empid,
     p398~escol,
     p398~fgtso,
-    p398~fgtsd
+    p398~fgtsd,
+    p0~stat2
 
 INTO TABLE @DATA(gt_emp)
 
 FROM pa0001 AS p1
+
+LEFT JOIN pa0000 AS p0
+  ON p0~pernr = p1~pernr
+ AND p0~begda <= @sy-datum
+ AND p0~endda >= @sy-datum
 
 LEFT JOIN pa0002 AS p2
   ON p2~pernr = p1~pernr
@@ -177,7 +185,8 @@ WHERE p1~begda <= @sy-datum
     lv_codban TYPE string,
     lv_codage TYPE string,
     lv_conban TYPE string,
-    lv_digban TYPE string.
+    lv_digban TYPE string,
+    lv_sitpro TYPE string.
 
   LOOP AT gt_emp ASSIGNING FIELD-SYMBOL(<fs_emp>).
 
@@ -331,6 +340,15 @@ WHERE p1~begda <= @sy-datum
       USING <fs_emp>-bukrs
       CHANGING lv_numemp.
 
+    CASE <fs_emp>-stat2.
+      WHEN '0'.
+        lv_sitpro = 'Demitido'.
+      WHEN '3'.
+        lv_sitpro = 'Ativo'.
+      WHEN OTHERS.
+        lv_sitpro = 'Afastado'.
+    ENDCASE.
+
     gv_line =
       lv_numemp           && ';' && " NUMEMP
       lv_tipcol           && ';' && " TIPCOL
@@ -388,7 +406,10 @@ WHERE p1~begda <= @sy-datum
       ''                  && ';' && " DIGCAR
       ''                  && ';' && " TPCPIX
       ''                  && ';' && " CHVPIX
-      'N'.                          " COTDEF
+      'N'                 && ';' && " COTDEF
+      lv_sitpro           && ';' && " SITPRO
+      <fs_emp>-bukrs      && ';' && " EMPRESA
+      <fs_emp>-btrtl.               " FILIAL
 
 
     APPEND gv_line TO gt_file.
